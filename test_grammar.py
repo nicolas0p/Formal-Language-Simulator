@@ -1,6 +1,7 @@
 import unittest
 from grammar import Grammar
 from grammar import Production
+from grammar import InitialSymbolNotInNonTerminalsSetException
 
 class TestGrammar(unittest.TestCase):
 
@@ -19,3 +20,6 @@ class TestGrammar(unittest.TestCase):
     def test_add_production(self):
         self.grammar.add_production(Production("S", "aS"))
         self.assertEqual(1, self.grammar.productions_quantity())
+
+    def test_create_grammar_with_wrong_initial_symbol(self):
+        self.assertRaises(InitialSymbolNotInNonTerminalsSetException, Grammar, {'a'}, {'S'}, 'A')
