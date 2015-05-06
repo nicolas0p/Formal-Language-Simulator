@@ -16,6 +16,8 @@ class Grammar():
     def add_production(self, production):
         self._productions.add(production)
 
+    def generate(self, sentencial_form = 'S'):
+
     def productions_quantity(self):
         return len(self._productions)
 

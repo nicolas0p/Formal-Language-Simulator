@@ -23,3 +23,8 @@ class TestGrammar(unittest.TestCase):
 
     def test_create_grammar_with_wrong_initial_symbol(self):
         self.assertRaises(InitialSymbolNotInNonTerminalsSetException, Grammar, {'a'}, {'S'}, 'A')
+
+    def test_generate_in_1_step_1_production(self):
+        self.grammar.add_production(Production('S', 'aS'))
+        generated = self.grammar.generate()
+        self.assertSetEqual('aS', generated)
