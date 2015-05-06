@@ -1,8 +1,11 @@
 class DeterministicFiniteAutomaton():
 
-    def __init__(self):
-        self._states = set()
-        self._transitions = {}
+    def __init__(self, states, alphabet, transitions, initial_state, final_states):
+        self._states = states
+        self._alphabet = alphabet
+        self._transitions = transitions
+        self._initial_state = initial_state
+        self._final_states = final_states
 
     def insert_state(self, state):
         self._states.add(state)
