@@ -27,16 +27,29 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q1 = State("q1")
         automaton.insert_state(q0)
         automaton.insert_state(q1)
-        automaton.insert_transition(q0, q1)
+        automaton.insert_transition(q0, 'a', q1)
 
-        self.assertTrue(automaton.has_transition(q0, q1))
+        self.assertTrue(automaton.has_transition(q0, 'a', q1))
 
-#    def test_recognize_sentence(self):
-#        q0 = State("q0")
-#        q1 = State("q1")
-#        states = {q0, q1}
-#        transitions = {q0:q1, q1:q0}
-#        automaton = DeterministicFiniteAutomaton(states, transitions, q0, {q1})
-#        L(M) = odd sized sentences
-#
-#        automaton.recognize_sentence()
+    def test_recognize_true_sentence(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        states = {q0, q1}
+        transitions = {q0:{'a':q1, 'b':q1}, q1:{'a':q0, 'b':q0}}
+        alphabet = {'a', 'b'}
+        automaton = DeterministicFiniteAutomaton(states, alphabet, transitions, q0, {q1})
+        #L(M) = odd sized sentences
+
+        self.assertTrue(automaton.recognize_sentence("aba"))
+
+    def test_recognize_false_sentence(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        states = {q0, q1}
+        transitions = {q0:{'a':q1, 'b':q1}, q1:{'a':q0, 'b':q0}}
+        alphabet = {'a', 'b'}
+        automaton = DeterministicFiniteAutomaton(states, alphabet, transitions, q0, {q1})
+        #L(M) = odd sized sentences
+
+        self.assertFalse(automaton.recognize_sentence("abaa"))
+        self.assertFalse(automaton.recognize_sentence("abc"))
