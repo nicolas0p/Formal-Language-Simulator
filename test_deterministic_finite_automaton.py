@@ -42,7 +42,7 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
 
         self.assertTrue(automaton.recognize_sentence("aba"))
 
-    def test_recognize_false_sentence(self):
+    def test_dont_recognize_false_sentence(self):
         q0 = State("q0")
         q1 = State("q1")
         states = {q0, q1}
@@ -53,3 +53,31 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
 
         self.assertFalse(automaton.recognize_sentence("abaa"))
         self.assertFalse(automaton.recognize_sentence("abc"))
+
+    def test_remove_state(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        states = {q0, q1, q2}
+        transitions = {q0:{'a':q1, 'b':q2}, q1:{'a':q0, 'b':q2}, q2:{'a':q0, 'b':q1}}
+        alphabet = {'a', 'b'}
+        automaton = DeterministicFiniteAutomaton(states, alphabet, transitions, q0, {q1})
+
+        automaton.remove_state(q1)
+
+        self.maxDiff = None
+        self.assertDictEqual(automaton._transitions, {q0:{'b':q2}, q2:{'a':q0}})
+        self.assertSetEqual(automaton._states, {q0, q2})
+
+    def test_remove_unreachable_states(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        states = {q0, q1}
+        transitions = {q0:{'a':q1}, q1:{}, q2:{}}
+        alphabet = {'a', 'b'}
+        automaton = DeterministicFiniteAutomaton(states, alphabet, transitions, q0, {q1})
+
+        automaton.remove_unreachable()
+
+        self.assertSetEqual(automaton._states, {q0,q1})
