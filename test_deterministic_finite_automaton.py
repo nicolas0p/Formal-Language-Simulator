@@ -9,19 +9,19 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         pass
 
     def test_create_automaton(self):
-        automaton = DeterministicFiniteAutomaton(set(), set(), {}, "", set())
+        automaton = DeterministicFiniteAutomaton(set(), {}, "", set())
 
         self.assertIsInstance(automaton, DeterministicFiniteAutomaton)
 
     def test_insert_state(self):
-        automaton = DeterministicFiniteAutomaton(set(), set(), {}, "", set())
+        automaton = DeterministicFiniteAutomaton(set(), {}, "", set())
 
         automaton.insert_state(State("q0"))
 
         self.assertEqual(1, automaton.state_quantity())
 
     def test_insert_transition(self):
-        automaton = DeterministicFiniteAutomaton(set(), set(), {}, "", set())
+        automaton = DeterministicFiniteAutomaton(set(), {'a'}, "", set())
 
         q0 = State("q0")
         q1 = State("q1")
@@ -31,13 +31,25 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
 
         self.assertTrue(automaton.has_transition(q0, 'a', q1))
 
+    def test_insert_false_transition(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        alphabet = {'a', 'b'}
+        automaton = DeterministicFiniteAutomaton({q0}, alphabet, q0, {q0})
+
+        self.assertRaises(Exception, automaton.insert_transition, q0, 'c', q0)
+
+
     def test_recognize_true_sentence(self):
         q0 = State("q0")
         q1 = State("q1")
         states = {q0, q1}
-        transitions = {q0:{'a':q1, 'b':q1}, q1:{'a':q0, 'b':q0}}
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, transitions, q0, {q1})
+        automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q0, 'b', q1)
+        automaton.insert_transition(q1, 'a', q0)
+        automaton.insert_transition(q1, 'b', q0)
         #L(M) = odd sized sentences
 
         self.assertTrue(automaton.recognize_sentence("aba"))
@@ -46,9 +58,12 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q0 = State("q0")
         q1 = State("q1")
         states = {q0, q1}
-        transitions = {q0:{'a':q1, 'b':q1}, q1:{'a':q0, 'b':q0}}
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, transitions, q0, {q1})
+        automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q0, 'b', q1)
+        automaton.insert_transition(q1, 'a', q0)
+        automaton.insert_transition(q1, 'b', q0)
         #L(M) = odd sized sentences
 
         self.assertFalse(automaton.recognize_sentence("abaa"))
@@ -59,14 +74,20 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q1 = State("q1")
         q2 = State("q2")
         states = {q0, q1, q2}
-        transitions = {q0:{'a':q1, 'b':q2}, q1:{'a':q0, 'b':q2}, q2:{'a':q0, 'b':q1}}
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, transitions, q0, {q1})
+        automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q0, 'b', q2)
+        automaton.insert_transition(q1, 'a', q0)
+        automaton.insert_transition(q1, 'b', q2)
+        automaton.insert_transition(q2, 'a', q0)
+        automaton.insert_transition(q2, 'a', q1)
 
         automaton.remove_state(q1)
 
-        self.maxDiff = None
-        self.assertDictEqual(automaton._transitions, {q0:{'b':q2}, q2:{'a':q0}})
+        self.assertFalse(automaton.has_transition(q0, 'a', q1))
+        self.assertFalse(automaton.has_transition(q1, 'a', q0))
+        self.assertTrue(automaton.has_transition(q0, 'b', q2))
         self.assertSetEqual(automaton._states, {q0, q2})
 
     def test_remove_unreachable_states(self):
@@ -74,9 +95,9 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q1 = State("q1")
         q2 = State("q2")
         states = {q0, q1}
-        transitions = {q0:{'a':q1}, q1:{}, q2:{}}
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, transitions, q0, {q1})
+        automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
+        automaton.insert_transition(q0, 'a', q1)
 
         automaton.remove_unreachable()
 

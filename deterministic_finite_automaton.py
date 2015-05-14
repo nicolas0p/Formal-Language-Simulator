@@ -1,11 +1,13 @@
 class DeterministicFiniteAutomaton():
 
-    def __init__(self, states, alphabet, transitions, initial_state, final_states):
+    def __init__(self, states, alphabet, initial_state, final_states):
         self._states = states  #set of States
         self._alphabet = alphabet #set of letters
-        self._transitions = transitions #dict of State:{dict letter:State}
+        self._transitions = {} #dict of State:{dict letter:State}
         self._initial_state = initial_state #State
         self._final_states = final_states #set of States
+        for state in self._states:
+            self._transitions[state] = {}
 
     def insert_state(self, state):
         self._states.add(state)
@@ -15,12 +17,17 @@ class DeterministicFiniteAutomaton():
         return len(self._states)
 
     def insert_transition(self, source, letter, destiny):
-        if(source not in self._states or destiny not in self._states):
+        if source not in self._states or destiny not in self._states:
             raise Exception("State does not belong to finite automaton")
+        if letter not in self._alphabet:
+            raise Exception("Letter does not belong to alphabet")
         self._transitions[source][letter] = destiny
 
     def has_transition(self, source, letter, destiny):
-        return destiny is self._transitions[source][letter]
+        try:
+            return destiny is self._transitions[source][letter]
+        except KeyError:
+            return False
 
     def recognize_sentence(self, sentence):
         actual_state = self._initial_state
