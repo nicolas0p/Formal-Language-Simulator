@@ -38,7 +38,7 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         automaton = DeterministicFiniteAutomaton({q0}, alphabet, q0, {q0})
 
         self.assertRaises(Exception, automaton.insert_transition, q0, 'c', q0)
-
+        self.assertRaises(Exception, automaton.insert_transition, q0, 'a', q1)
 
     def test_recognize_true_sentence(self):
         q0 = State("q0")
@@ -99,6 +99,25 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
         automaton.insert_transition(q0, 'a', q1)
 
-        automaton.remove_unreachable()
+        automaton.remove_unreachable_states()
 
         self.assertSetEqual(automaton._states, {q0,q1})
+
+    def test_remove_dead_states(self):
+        q = []
+        for i in range(0,6):
+            q.append(State("q" + str(i)))
+        states = set(q)
+        alphabet = {'a','b'}
+        automaton = DeterministicFiniteAutomaton(states, alphabet, q[0], {q[2]})
+        automaton.insert_transition(q[0], 'a', q[1])
+        automaton.insert_transition(q[0], 'b', q[3])
+        automaton.insert_transition(q[1], 'a', q[2])
+        automaton.insert_transition(q[1], 'b', q[2])
+        automaton.insert_transition(q[3], 'a', q[5])
+        automaton.insert_transition(q[4], 'a', q[3])
+        automaton.insert_transition(q[5], 'a', q[4])
+
+        automaton.remove_dead_states()
+
+        self.assertSetEqual(automaton._states, {q[0], q[1], q[2]})

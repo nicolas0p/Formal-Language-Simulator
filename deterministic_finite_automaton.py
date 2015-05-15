@@ -38,7 +38,7 @@ class DeterministicFiniteAutomaton():
                 return False
         return actual_state in self._final_states
 
-    def remove_unreachable(self):
+    def remove_unreachable_states(self):
         reachable = self.find_reachable()
         for state in self._states - reachable:
             self.remove_state(state)
@@ -63,6 +63,22 @@ class DeterministicFiniteAutomaton():
                 temp.update(through_actual)
             reachable_state = temp.union({self._initial_state})
         return reachable_state
+
+    def remove_dead_states(self):
+        dead = self.find_dead_states()
+        for state in dead:
+            self.remove_state(state)
+
+    def find_dead_states(self):
+        alive = self._final_states.copy()
+        old = set()
+        while alive != old:
+            for state in self._states:
+                for letter in self._alphabet:
+                    if letter in self._transitions[state] and self._transitions[state][letter] in alive:
+                        alive.add(state)
+            old = alive.copy()
+        return self._states - alive
 
 class State():
 
