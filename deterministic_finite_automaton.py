@@ -73,11 +73,11 @@ class DeterministicFiniteAutomaton():
         alive = self._final_states.copy()
         old = set()
         while alive != old:
+            old = alive.copy()
             for state in self._states:
                 for letter in self._alphabet:
                     if letter in self._transitions[state] and self._transitions[state][letter] in alive:
                         alive.add(state)
-            old = alive.copy()
         return self._states - alive
 
 class State():
