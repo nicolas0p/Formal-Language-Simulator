@@ -121,3 +121,33 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         automaton.remove_dead_states()
 
         self.assertSetEqual(automaton._states, {q[0], q[1], q[2]})
+
+    def test_remove_equivalent_states(self):
+        q = []
+        for i in range(0,6):
+            q.append(State("q" + str(i)))
+        states = set(q)
+        alphabet = {'a', 'b'}
+        automaton = DeterministicFiniteAutomaton(states, alphabet, q[0], {q[0], q[5]})
+        automaton.insert_transition(q[0], 'a', q[5])
+        automaton.insert_transition(q[0], 'b', q[1])
+        automaton.insert_transition(q[1], 'a', q[4])
+        automaton.insert_transition(q[1], 'b', q[3])
+        automaton.insert_transition(q[2], 'a', q[2])
+        automaton.insert_transition(q[2], 'b', q[5])
+        automaton.insert_transition(q[3], 'a', q[4])
+        automaton.insert_transition(q[3], 'b', q[0])
+        automaton.insert_transition(q[4], 'a', q[1])
+        automaton.insert_transition(q[4], 'b', q[2])
+        automaton.insert_transition(q[5], 'a', q[5])
+        automaton.insert_transition(q[5], 'b', q[4])
+
+        automaton.remove_equivalent_states()
+
+        self.assertSetEqual(automaton._states, {q[0], q[1], q[2]})
+        self.assertTrue(automaton.has_transition(q[0], 'a', q[0]))
+        self.assertTrue(automaton.has_transition(q[0], 'b', q[1]))
+        self.assertTrue(automaton.has_transition(q[1], 'a', q[1]))
+        self.assertTrue(automaton.has_transition(q[1], 'b', q[2]))
+        self.assertTrue(automaton.has_transition(q[1], 'a', q[2]))
+        self.assertTrue(automaton.has_transition(q[1], 'b', q[0]))

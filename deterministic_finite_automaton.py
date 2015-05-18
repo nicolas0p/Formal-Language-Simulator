@@ -1,3 +1,5 @@
+import copy
+
 class DeterministicFiniteAutomaton():
 
     def __init__(self, states, alphabet, initial_state, final_states):
@@ -79,6 +81,53 @@ class DeterministicFiniteAutomaton():
                     if letter in self._transitions[state] and self._transitions[state][letter] in alive:
                         alive.add(state)
         return self._states - alive
+
+    def remove_equivalent_states(self):
+        error_state = self._add_error_state()
+        equivalence_classes = [self._final_states, self._states - self._final_states]
+        old = []
+        while equivalence_classes != old:
+            old = copy.deepcopy(equivalence_classes)
+            for clas in old:
+                for state1 in clas:
+                    for state2 in clas:
+                        if not self._are_equivalent_states(state1, state2, equivalence_classes):
+                            state2_class = [x for x in equivalence_classes if state2 in x][0]
+                            state2_class.remove(state2)
+                            equivalence_classes.append({state2})
+        q = []
+        transitions = {}
+        for i in range(0, len(equivalence_classes)):
+            state = State("q" + str(i))
+            q.append(state)
+            transitions[state] = {}
+        for i in range(0, len(equivalence_classes)):
+            for letter in self._alphabet:
+                state = next(iter(equivalence_classes[i])) #any state in equivalent_class number i
+                tran_qi = self._transitions[state][letter] #delta(state, letter, tran_qi)
+                location = [equivalence_classes.index(y) for y in equivalence_classes if tran_qi in y] #gets the number of the class of tran_qi
+                transitions[q[i]][letter] = q[location]
+        self._states = set(q)
+        self._transitions = transitions
+
+    def _are_equivalent_states(self, state1, state2, equivalence_classes):
+        for letter in self._alphabet:
+            tran_state1 = self._transitions[state1][letter]
+            tran_state2 = self._transitions[state2][letter]
+            one = [x for x in equivalence_classes if tran_state1 in x]
+            if tran_state2 not in one[0]:
+                return False
+        return True
+
+
+    def _add_error_state(self):
+        fi = State("fi")
+        self.insert_state(fi)
+        for state in self._states:
+            for letter in self._alphabet:
+                if letter not in self._transitions[state]:
+                    self.insert_transition(state, letter, fi)
+        return fi
 
 class State():
 
