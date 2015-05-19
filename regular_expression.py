@@ -4,6 +4,7 @@ class RegularExpression:
         self._terminals = terminals
 
     # add unseen concatenations
+	# ba(na)*na  ==>  b.a.(n.a)*.n.a
     def _normalize(self):
         string = self._string
         pos = 0;
@@ -27,3 +28,6 @@ class RegularExpression:
 
     def to_deterministic_finite_automaton(self):
         pass
+
+class Node:
+    def __init__(self):
