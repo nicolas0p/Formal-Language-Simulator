@@ -1,3 +1,5 @@
+import copy
+
 class FiniteAutomaton():
 
     def __init__(self, states, alphabet, initial_state, final_states):
@@ -107,6 +109,29 @@ class FiniteAutomaton():
                     if not self._transitions[state][letter].isdisjoint(alive):
                         alive.add(state)
         return self._states - alive
+
+    def union(self, other):
+        '''
+        huge problem: states are not unique, if both automata have a state
+        called q0 they are considered to be the same
+        Maybe add something to the name of every state(update transitions too)
+        '''
+        states = self._states.union(other._states)
+        alphabet = self._alphabet.union(other._alphabet)
+        final_states = self._final_states.union(other._final_states)
+        initial = State("initial")
+        states.add(initial)
+        automaton = FiniteAutomaton(states, alphabet, initial, final_states)
+        transitions = copy.deepcopy(self._transitions)
+        transitions.update(other._transitions)
+        automaton._transitions = transitions
+        automaton.insert_state(initial)
+
+        for to_copy in {self, other}:
+            for letter in to_copy._alphabet:
+                transition_copy = to_copy._transitions[to_copy._initial_state][letter].copy()
+                automaton._transitions[initial][letter] = transition_copy
+        return automaton
 
 class State():
 

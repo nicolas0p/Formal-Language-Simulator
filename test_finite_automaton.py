@@ -134,3 +134,35 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertTrue(automaton.is_nondeterministic())
         self.assertTrue(automaton.has_transition(q0, 'a', q0))
         self.assertTrue(automaton.has_transition(q0, 'a', q1))
+
+    def test_automata_union(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        states = {q0, q1}
+        alphabet = {'a', 'b'}
+        automaton1 = FiniteAutomaton(states, alphabet, q0, {q1})
+        automaton1.insert_transition(q0, 'a', q1)
+        automaton1.insert_transition(q0, 'b', q1)
+        automaton1.insert_transition(q1, 'a', q0)
+        automaton1.insert_transition(q1, 'b', q0)
+        #L(M) = {x|x in (a,b)* ^ |x| is odd}
+        s0 = State("q0")
+        s1 = State("q1")
+        states = {s0, s1}
+        alphabet = {'a', 'b'}
+        automaton2 = FiniteAutomaton(states, alphabet, s0, {s0})
+        automaton2.insert_transition(s0, 'a', s1)
+        automaton2.insert_transition(s0, 'b', s1)
+        automaton2.insert_transition(s1, 'a', s0)
+        automaton2.insert_transition(s1, 'b', s0)
+        #L(M) = {x|x in (a,b)* ^ |x| is even}
+
+        union = automaton1.union(automaton2)
+
+        self.assertTrue(automaton1.recognize_sentence("abaab"))
+        self.assertTrue(automaton2.recognize_sentence("ababba"))
+        self.assertFalse(automaton1.recognize_sentence("ababba"))
+        self.assertFalse(automaton2.recognize_sentence("abaab"))
+        self.assertTrue(union.recognize_sentence("abaab"))
+        self.assertTrue(union.recognize_sentence("ababba"))
+        self.assertFalse(union.recognize_sentence("abc"))
