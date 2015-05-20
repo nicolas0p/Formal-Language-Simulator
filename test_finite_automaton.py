@@ -1,32 +1,30 @@
 import unittest
-from deterministic_finite_automaton import DeterministicFiniteAutomaton
-from deterministic_finite_automaton import State
+from finite_automaton import FiniteAutomaton
+from finite_automaton import State
 
 
-class TestDeterministicFiniteAutomaton(unittest.TestCase):
+class TestFiniteAutomaton(unittest.TestCase):
 
     def setUp(self):
         pass
 
     def test_create_automaton(self):
-        automaton = DeterministicFiniteAutomaton(set(), {}, "", set())
+        automaton = FiniteAutomaton(set(), {}, "", set())
 
-        self.assertIsInstance(automaton, DeterministicFiniteAutomaton)
+        self.assertIsInstance(automaton, FiniteAutomaton)
 
     def test_insert_state(self):
-        automaton = DeterministicFiniteAutomaton(set(), {}, "", set())
+        automaton = FiniteAutomaton(set(), {}, "", set())
 
         automaton.insert_state(State("q0"))
 
         self.assertEqual(1, automaton.state_quantity())
 
     def test_insert_transition(self):
-        automaton = DeterministicFiniteAutomaton(set(), {'a'}, "", set())
-
         q0 = State("q0")
         q1 = State("q1")
-        automaton.insert_state(q0)
-        automaton.insert_state(q1)
+        automaton = FiniteAutomaton({q0, q1}, {'a'}, "", set())
+
         automaton.insert_transition(q0, 'a', q1)
 
         self.assertTrue(automaton.has_transition(q0, 'a', q1))
@@ -35,7 +33,7 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q0 = State("q0")
         q1 = State("q1")
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton({q0}, alphabet, q0, {q0})
+        automaton = FiniteAutomaton({q0}, alphabet, q0, {q0})
 
         self.assertRaises(Exception, automaton.insert_transition, q0, 'c', q0)
         self.assertRaises(Exception, automaton.insert_transition, q0, 'a', q1)
@@ -45,13 +43,14 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q1 = State("q1")
         states = {q0, q1}
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
+        automaton = FiniteAutomaton(states, alphabet, q0, {q1})
         automaton.insert_transition(q0, 'a', q1)
         automaton.insert_transition(q0, 'b', q1)
         automaton.insert_transition(q1, 'a', q0)
         automaton.insert_transition(q1, 'b', q0)
         #L(M) = odd sized sentences
 
+        self.assertFalse(automaton.is_nondeterministic())
         self.assertTrue(automaton.recognize_sentence("aba"))
 
     def test_dont_recognize_false_sentence(self):
@@ -59,13 +58,14 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q1 = State("q1")
         states = {q0, q1}
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
+        automaton = FiniteAutomaton(states, alphabet, q0, {q1})
         automaton.insert_transition(q0, 'a', q1)
         automaton.insert_transition(q0, 'b', q1)
         automaton.insert_transition(q1, 'a', q0)
         automaton.insert_transition(q1, 'b', q0)
         #L(M) = odd sized sentences
 
+        self.assertFalse(automaton.is_nondeterministic())
         self.assertFalse(automaton.recognize_sentence("abaa"))
         self.assertFalse(automaton.recognize_sentence("abc"))
 
@@ -75,7 +75,7 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q2 = State("q2")
         states = {q0, q1, q2}
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
+        automaton = FiniteAutomaton(states, alphabet, q0, {q1})
         automaton.insert_transition(q0, 'a', q1)
         automaton.insert_transition(q0, 'b', q2)
         automaton.insert_transition(q1, 'a', q0)
@@ -96,7 +96,7 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         q2 = State("q2")
         states = {q0, q1}
         alphabet = {'a', 'b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, q0, {q1})
+        automaton = FiniteAutomaton(states, alphabet, q0, {q1})
         automaton.insert_transition(q0, 'a', q1)
 
         automaton.remove_unreachable_states()
@@ -109,7 +109,7 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
             q.append(State("q" + str(i)))
         states = set(q)
         alphabet = {'a','b'}
-        automaton = DeterministicFiniteAutomaton(states, alphabet, q[0], {q[2]})
+        automaton = FiniteAutomaton(states, alphabet, q[0], {q[2]})
         automaton.insert_transition(q[0], 'a', q[1])
         automaton.insert_transition(q[0], 'b', q[3])
         automaton.insert_transition(q[1], 'a', q[2])
@@ -121,3 +121,16 @@ class TestDeterministicFiniteAutomaton(unittest.TestCase):
         automaton.remove_dead_states()
 
         self.assertSetEqual(automaton._states, {q[0], q[1], q[2]})
+
+    def test_add_nondeterministic_transition(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        automaton = FiniteAutomaton({q0, q1}, {'a', 'b'}, q0, {q1})
+        automaton.insert_transition(q0, 'a', q0)
+        automaton.insert_transition(q1, 'b', q1)
+
+        automaton.insert_transition(q0, 'a', q1)
+
+        self.assertTrue(automaton.is_nondeterministic())
+        self.assertTrue(automaton.has_transition(q0, 'a', q0))
+        self.assertTrue(automaton.has_transition(q0, 'a', q1))
