@@ -1,4 +1,5 @@
 import copy
+import pdb
 
 class DeterministicFiniteAutomaton():
 
@@ -61,7 +62,8 @@ class DeterministicFiniteAutomaton():
             actual_size = len(reachable_state)
             temp = set()
             for state in reachable_state:
-                through_actual = list(self._transitions[state].values()) #list of states reachable through the actual state
+                #list of states reachable through the actual state
+                through_actual = list(self._transitions[state].values())
                 temp.update(through_actual)
             reachable_state = temp.union({self._initial_state})
         return reachable_state
@@ -83,7 +85,29 @@ class DeterministicFiniteAutomaton():
         return self._states - alive
 
     def remove_equivalent_states(self):
+        #pdb.set_trace()
         error_state = self._add_error_state()
+        equivalence_classes = self._find_equivalent_classes()
+        q = []
+        transitions = {}
+        for i in range(0, len(equivalence_classes)):
+            state = State("q" + str(i))
+            q.append(state)
+            transitions[state] = {}
+        for i in range(0, len(equivalence_classes)):
+            for letter in self._alphabet:
+                #any state in equivalent_class number i
+                state = next(iter(equivalence_classes[i]))
+                #delta(state, letter, tran_qi)
+                tran_qi = self._transitions[state][letter]
+                location = [equivalence_classes.index(y) for y in equivalence_classes if tran_qi in y][0]
+                #gets the number of the class of tran_qi
+                transitions[q[i]][letter] = q[location]
+        self._states = set(q)
+        self._transitions = transitions
+        self.remove_dead_states()
+
+    def _find_equivalent_classes(self):
         equivalence_classes = [self._final_states, self._states - self._final_states]
         old = []
         while equivalence_classes != old:
@@ -95,39 +119,26 @@ class DeterministicFiniteAutomaton():
                             state2_class = [x for x in equivalence_classes if state2 in x][0]
                             state2_class.remove(state2)
                             equivalence_classes.append({state2})
-        q = []
-        transitions = {}
-        for i in range(0, len(equivalence_classes)):
-            state = State("q" + str(i))
-            q.append(state)
-            transitions[state] = {}
-        for i in range(0, len(equivalence_classes)):
-            for letter in self._alphabet:
-                state = next(iter(equivalence_classes[i])) #any state in equivalent_class number i
-                tran_qi = self._transitions[state][letter] #delta(state, letter, tran_qi)
-                location = [equivalence_classes.index(y) for y in equivalence_classes if tran_qi in y] #gets the number of the class of tran_qi
-                transitions[q[i]][letter] = q[location]
-        self._states = set(q)
-        self._transitions = transitions
+        return [x for x in equivalence_classes if len(x) > 0]
+
 
     def _are_equivalent_states(self, state1, state2, equivalence_classes):
         for letter in self._alphabet:
             tran_state1 = self._transitions[state1][letter]
             tran_state2 = self._transitions[state2][letter]
-            one = [x for x in equivalence_classes if tran_state1 in x]
-            if tran_state2 not in one[0]:
+            one = [x for x in equivalence_classes if tran_state1 in x][0]
+            if tran_state2 not in one:
                 return False
         return True
 
-
     def _add_error_state(self):
-        fi = State("fi")
-        self.insert_state(fi)
+        error_state = State("fi")
+        self.insert_state(error_state)
         for state in self._states:
             for letter in self._alphabet:
                 if letter not in self._transitions[state]:
-                    self.insert_transition(state, letter, fi)
-        return fi
+                    self.insert_transition(state, letter, error_state)
+        return error_state
 
 class State():
 
