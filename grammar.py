@@ -93,6 +93,26 @@ class Grammar():
         # returns the mounted ndfa
         return ndfa
 
+    def __str__(self):
+        productions = {}
+        # gather productions of the same left part on a list
+        for production in self._productions:
+            if production._left not in productions:
+                productions[production._left] = []
+            productions[production._left].append(production._right)
+
+        string = ''
+        # mount string from the gathered productions
+        for production in productions.keys():
+            string = string + production
+            string = string + ' -> '
+            for right in productions[production]:
+                string = string + right + ' | '
+            string = string + '\n'
+
+        return string
+
+
 class Production():
 
     def __init__(self, left_side, right_side):
