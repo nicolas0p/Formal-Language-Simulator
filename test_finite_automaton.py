@@ -9,12 +9,12 @@ class TestFiniteAutomaton(unittest.TestCase):
         pass
 
     def test_create_automaton(self):
-        automaton = FiniteAutomaton(set(), {}, "", set())
+        automaton = FiniteAutomaton(set(), set(), "", set())
 
         self.assertIsInstance(automaton, FiniteAutomaton)
 
     def test_insert_state(self):
-        automaton = FiniteAutomaton(set(), {}, "", set())
+        automaton = FiniteAutomaton(set(), set(), "", set())
 
         automaton.insert_state(State("q0"))
 
@@ -166,3 +166,20 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertTrue(union.recognize_sentence("abaab"))
         self.assertTrue(union.recognize_sentence("ababba"))
         self.assertFalse(union.recognize_sentence("abc"))
+
+    def test_recognize_nondeterministic(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        q3 = State("q3")
+        automaton = FiniteAutomaton({q0, q1, q2, q3}, {'a', 'b'}, q0, {q3})
+        automaton.insert_transition(q0, 'a', q0)
+        automaton.insert_transition(q0, 'b', q0)
+        automaton.insert_transition(q0, 'b', q1)
+        automaton.insert_transition(q1, 'a', q2)
+        automaton.insert_transition(q2, 'b', q3)
+        automaton.insert_transition(q3, 'a', q3)
+        automaton.insert_transition(q3, 'b', q3)
+
+        self.assertTrue(automaton.recognize_sentence("abaababaaaba"))
+        self.assertFalse(automaton.recognize_sentence("aaaabaaab"))

@@ -8,6 +8,8 @@ class FiniteAutomaton():
         self._transitions = {} #dict of State:{dict letter:set of States}
         self._initial_state = initial_state #State
         self._final_states = final_states #set of States
+        self._epsilon = '&'
+        self._alphabet.add(self._epsilon)
         for state in self._states:
             self._transitions[state] = {}
             for letter in self._alphabet:
@@ -48,11 +50,10 @@ class FiniteAutomaton():
         return self._recognize_sentence_nondeterministic(sentence, self._initial_state)
 
     def _recognize_sentence_nondeterministic(self, sentence, actual_state):
-        return
-        if sentence is "":
+        if sentence is "" and self._transitions[actual_state][self._epsilon] == set() :
             return actual_state in self._final_states
         for state in self._transitions[actual_state][sentence[0]]:
-            if self._recognize_sentence_nondeterministic(sentence[0:], state):
+            if self._recognize_sentence_nondeterministic(sentence[1:], state):
                 return True
         return False
 
@@ -95,11 +96,11 @@ class FiniteAutomaton():
         return reachable_state
 
     def remove_dead_states(self):
-        dead = self.find_dead_states()
+        dead = self._find_dead_states()
         for state in dead:
             self.remove_state(state)
 
-    def find_dead_states(self):
+    def _find_dead_states(self):
         alive = self._final_states.copy()
         old = set()
         while alive != old:
