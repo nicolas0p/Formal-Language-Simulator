@@ -114,11 +114,6 @@ class FiniteAutomaton():
         return self._states - alive
 
     def union(self, other):
-        '''
-        huge problem: states are not unique, if both automata have a state
-        called q0 they are considered to be the same
-        Maybe add something to the name of every state(update transitions too)
-        '''
         old_states = [self._states, other._states]
         old_transitions = [self._transitions, other._transitions]
         old_final_states = [self._final_states, other._final_states]
