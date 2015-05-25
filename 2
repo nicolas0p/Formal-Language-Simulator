@@ -52,8 +52,6 @@ class FiniteAutomaton():
     def _recognize_sentence_nondeterministic(self, sentence, actual_state):
         if sentence is "" and self._transitions[actual_state][self._epsilon] == set() :
             return actual_state in self._final_states
-        if sentence[0] not in self._alphabet:
-            return False
         for state in self._transitions[actual_state][sentence[0]]:
             if self._recognize_sentence_nondeterministic(sentence[1:], state):
                 return True
@@ -121,7 +119,7 @@ class FiniteAutomaton():
         '''
         old_states = [self._states, other._states]
         old_transitions = [self._transitions, other._transitions]
-        old_final_states = [self._final_states, other._final_states]
+        old_final_states = [self._final_states.copy(), other._final_states.copy()]
         states = set()
         transitions = {}
         #dict of State:State where it represents old_state:new_state
@@ -133,6 +131,7 @@ class FiniteAutomaton():
                 transitions[new_state] = {}
                 converter[old_state] = new_state
         import pdb
+        #pdb.set_trace()
         alphabet = self._alphabet.union(other._alphabet)
         final_states = self._final_states.union(other._final_states)
         initial = State("initial")
@@ -147,7 +146,8 @@ class FiniteAutomaton():
                     for old_destiny in old_transitions[i][old_source][letter]:
                         new_destiny = converter[old_destiny]
                         automaton.insert_transition(new_source, letter, new_destiny)
-            for state in old_final_states[i]:
+            pdb.set_trace()
+            for state in automaton._final_states:
                 automaton._final_states.remove(state)
                 automaton._final_states.add(converter[state])
 

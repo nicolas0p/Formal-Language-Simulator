@@ -2,6 +2,7 @@ import unittest
 from finite_automaton import FiniteAutomaton
 from finite_automaton import State
 
+import pdb
 
 class TestFiniteAutomaton(unittest.TestCase):
 
@@ -105,10 +106,10 @@ class TestFiniteAutomaton(unittest.TestCase):
 
     def test_remove_dead_states(self):
         q = []
-        for i in range(0,6):
+        for i in range(0, 6):
             q.append(State("q" + str(i)))
         states = set(q)
-        alphabet = {'a','b'}
+        alphabet = {'a', 'b'}
         automaton = FiniteAutomaton(states, alphabet, q[0], {q[2]})
         automaton.insert_transition(q[0], 'a', q[1])
         automaton.insert_transition(q[0], 'b', q[3])
@@ -146,8 +147,8 @@ class TestFiniteAutomaton(unittest.TestCase):
         automaton1.insert_transition(q1, 'a', q0)
         automaton1.insert_transition(q1, 'b', q0)
         #L(M) = {x|x in (a,b)* ^ |x| is odd}
-        s0 = State("q0")
-        s1 = State("q1")
+        s0 = State("s0")
+        s1 = State("s1")
         states = {s0, s1}
         alphabet = {'a', 'b'}
         automaton2 = FiniteAutomaton(states, alphabet, s0, {s0})
