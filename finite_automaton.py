@@ -1,5 +1,7 @@
 import copy
 
+import pdb
+
 class FiniteAutomaton():
 
     def __init__(self, states, alphabet, initial_state, final_states):
@@ -127,7 +129,6 @@ class FiniteAutomaton():
                 states.add(new_state)
                 transitions[new_state] = {}
                 converter[old_state] = new_state
-        import pdb
         alphabet = self._alphabet.union(other._alphabet)
         final_states = self._final_states.union(other._final_states)
         initial = State("initial")
@@ -153,6 +154,27 @@ class FiniteAutomaton():
                     automaton.insert_transition(initial, letter, converter[destiny])
         if self._initial_state in self._final_states or other._initial_state in other._final_states:
             automaton._final_states.add(initial)
+        return automaton
+
+    def complement(self):
+        automaton = self.copy()
+        automaton._add_error_state()
+        new_final_states = automaton._states - automaton._final_states
+        automaton._final_states = new_final_states
+        return automaton
+
+    def _add_error_state(self):
+        error_state = State("fi")
+        self.insert_state(error_state)
+        for state in self._states:
+            for letter in self._alphabet:
+                if self._transitions[state] == set():
+                    self.insert_transition(state, letter, error_state)
+        return error_state
+
+    def copy(self):
+        automaton = FiniteAutomaton(self._states.copy(), self._alphabet.copy(), self._initial_state, self._final_states.copy())
+        automaton._transitions = copy.deepcopy(self._transitions)
         return automaton
 
     def __repr__(self):

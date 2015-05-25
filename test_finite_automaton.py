@@ -184,3 +184,24 @@ class TestFiniteAutomaton(unittest.TestCase):
 
         self.assertTrue(automaton.recognize_sentence("abaababaaaba"))
         self.assertFalse(automaton.recognize_sentence("aaaabaaab"))
+
+    def test_automaton_complement(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        alphabet = {'a', 'b'}
+        automaton = FiniteAutomaton({q0, q1, q2}, alphabet, q0, {q0})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q0, 'b', q0)
+        automaton.insert_transition(q1, 'b', q1)
+        automaton.insert_transition(q1, 'a', q2)
+        automaton.insert_transition(q2, 'b', q2)
+        automaton.insert_transition(q2, 'a', q0)
+        #L(M) = {x | x in (a,b)* ^ #a's divide 3}
+
+        complement = automaton.complement()
+
+        self.assertTrue(automaton.recognize_sentence("baabbababaabb"))
+        self.assertFalse(automaton.recognize_sentence("abbabababbba"))
+        self.assertTrue(complement.recognize_sentence("abbabababbba"))
+        self.assertFalse(complement.recognize_sentence("baabbababaabb"))
