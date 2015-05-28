@@ -10,6 +10,10 @@ class RegularExpression:
     # (ab*a) => ab*a
     def _normalize(self):
         string = self._string
+
+        if len(string) == 0:
+            return
+
         pos = 0;
         for i in range(0,len(self._string)-1):
             pair = self._string[i:i+2]
@@ -60,5 +64,57 @@ class RegularExpression:
 
         return less_significant
 
+    def _get_de_simone_tree(self):
+        symbol = self._get_less_significant()
+        node = 'BANANA'
+
+        if len(self._string) > 1:
+            left = self._string[:symbol[1]]
+            right = self._string[symbol[1]+1:]
+            # print(symbol, left, right)
+
+            left = RegularExpression(left)._get_de_simone_tree()
+            right = RegularExpression(right)._get_de_simone_tree()
+
+            if symbol[0] == '|':
+                node = DeSimoneAlternation(left,right)
+            elif symbol[0] == '*':
+                node = DeSimoneRepetition(left)
+            elif symbol[0] == '.':
+                node = DeSimoneConcatenation(left,right)
+        else:
+            node = DeSimoneNode(symbol[0])
+
+        return node
+
+
     def to_deterministic_finite_automaton(self):
         pass
+
+# "|" Alternation
+# "*" Repetition
+# "." Concatenation
+
+class DeSimoneNode:
+    def __init__(self, symbol, left=None, right=None):
+        self._symbol = symbol
+        self._left = left
+        self._right = right
+
+    def __str__(self):
+        return '{%s[%s]%s}' % (self._left, self._symbol,self._right)
+
+class DeSimoneAlternation(DeSimoneNode):
+    def __init__(self, left, right):
+        DeSimoneNode.__init__(self,'|',left,right)
+
+class DeSimoneRepetition(DeSimoneNode):
+    def __init__(self, left):
+        DeSimoneNode.__init__(self,'*',left)
+
+class DeSimoneConcatenation(DeSimoneNode):
+    def __init__(self,left,right):
+        DeSimoneNode.__init__(self,'.',left,right)
+
+# a = RegularExpression('(ab)*|ba');
+# print(a._get_de_simone_tree());

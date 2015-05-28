@@ -70,3 +70,37 @@ class TestRegularExpression(unittest.TestCase):
 
 		regex = RegularExpression('')
 		self.assertEqual(('&',-1),regex._get_less_significant())
+
+	def test_get_de_simone_tree(self):
+		regex = RegularExpression('(ab)*|ab')
+		self.assertEqual('{{{{None[a]None}[.]{None[b]None}}[*]None}[|]{{None[a]None}[.]{None[b]None}}}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('(a)|(b).(c)')
+		self.assertEqual('{{None[a]None}[|]{{None[b]None}[.]{None[c]None}}}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('a|bc')
+		self.assertEqual('{{None[a]None}[|]{{None[b]None}[.]{None[c]None}}}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('(ab)*(ba)*')
+		self.assertEqual('{{{{None[a]None}[.]{None[b]None}}[*]None}[.]{{{None[b]None}[.]{None[a]None}}[*]None}}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('a(ba)*b')
+		self.assertEqual('{{None[a]None}[.]{{{{None[b]None}[.]{None[a]None}}[*]None}[.]{None[b]None}}}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('(ba|a(ba)*a)*(ab)*')
+		self.assertEqual('{{{{{None[b]None}[.]{None[a]None}}[|]{{None[a]None}[.]{{{{None[b]None}[.]{None[a]None}}[*]None}[.]{None[a]None}}}}[*]None}[.]{{{None[a]None}[.]{None[b]None}}[*]None}}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('abab')
+		self.assertEqual('{{None[a]None}[.]{{None[b]None}[.]{{None[a]None}[.]{None[b]None}}}}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('(a*)')
+		self.assertEqual('{{None[a]None}[*]None}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('(a)*')
+		self.assertEqual('{{None[a]None}[*]None}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('a')
+		self.assertEqual('{None[a]None}',regex._get_de_simone_tree().__str__())
+
+		regex = RegularExpression('')
+		self.assertEqual('{None[&]None}',regex._get_de_simone_tree().__str__())
