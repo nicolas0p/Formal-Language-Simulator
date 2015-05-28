@@ -31,6 +31,12 @@ class TestRegularExpression(unittest.TestCase):
 		regex = RegularExpression('(a)*')
 		self.assertEqual('(a)*',regex._string)
 
+		regex = RegularExpression('a')
+		self.assertEqual('a',regex._string)
+
+		regex = RegularExpression('')
+		self.assertEqual('',regex._string)
+
 	def test_get_less_significant(self):
 		regex = RegularExpression('(ab)*|ab')
 		self.assertEqual(('|',6),regex._get_less_significant())
@@ -58,3 +64,9 @@ class TestRegularExpression(unittest.TestCase):
 
 		regex = RegularExpression('(a)*')
 		self.assertEqual(('*',3),regex._get_less_significant())
+
+		regex = RegularExpression('a')
+		self.assertEqual(('a',0),regex._get_less_significant())
+
+		regex = RegularExpression('')
+		self.assertEqual(('&',-1),regex._get_less_significant())
