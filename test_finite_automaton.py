@@ -10,12 +10,12 @@ class TestFiniteAutomaton(unittest.TestCase):
         pass
 
     def test_create_automaton(self):
-        automaton = FiniteAutomaton(set(), set(), "", set())
+        automaton = FiniteAutomaton(set(), set(), State(""), set())
 
         self.assertIsInstance(automaton, FiniteAutomaton)
 
     def test_insert_state(self):
-        automaton = FiniteAutomaton(set(), set(), "", set())
+        automaton = FiniteAutomaton(set(), set(), State(""), set())
 
         automaton.insert_state(State("q0"))
 
@@ -24,7 +24,7 @@ class TestFiniteAutomaton(unittest.TestCase):
     def test_insert_transition(self):
         q0 = State("q0")
         q1 = State("q1")
-        automaton = FiniteAutomaton({q0, q1}, {'a'}, "", set())
+        automaton = FiniteAutomaton({q0, q1}, {'a'}, q0, set())
 
         automaton.insert_transition(q0, 'a', q1)
 
@@ -168,6 +168,30 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertTrue(union.recognize_sentence("ababba"))
         self.assertFalse(union.recognize_sentence("abc"))
 
+    def test_automata_union_2(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        states = {q0, q1}
+        alphabet = {'a', 'b'}
+        automaton = FiniteAutomaton(states, alphabet, q0, {q0, q1})
+        automaton.insert_transition(q0, 'a', q0)
+        automaton.insert_transition(q0, 'b', q1)
+        automaton.insert_transition(q1, 'a', q0)
+        #L(M) = {x|x in (a,b)* ^ bb not in x}
+        q2 = State("q2")
+        other = FiniteAutomaton({q0, q1, q2}, alphabet, q0, {q0, q1, q2})
+        other.insert_transition(q0, 'a', q0)
+        other.insert_transition(q0, 'b', q1)
+        other.insert_transition(q1, 'a', q0)
+        other.insert_transition(q1, 'b', q2)
+        other.insert_transition(q2, 'a', q0)
+        #L(M) = {x|x in (a,b)* ^ bbb not in x}
+
+        union = automaton.union(other)
+
+        self.assertTrue(union.recognize_sentence("baababa"))
+        self.assertFalse(union.recognize_sentence("aaababbbaaba"))
+
     def test_recognize_nondeterministic(self):
         q0 = State("q0")
         q1 = State("q1")
@@ -197,7 +221,7 @@ class TestFiniteAutomaton(unittest.TestCase):
         automaton.insert_transition(q1, 'a', q2)
         automaton.insert_transition(q2, 'b', q2)
         automaton.insert_transition(q2, 'a', q0)
-        #L(M) = {x | x in (a,b)* ^ #a's divide 3}
+        #L(M) = {x | x in (a,b)* ^ #a's is divisible by 3}
 
         complement = automaton.complement()
 
@@ -205,3 +229,51 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertFalse(automaton.recognize_sentence("abbabababbba"))
         self.assertTrue(complement.recognize_sentence("abbabababbba"))
         self.assertFalse(complement.recognize_sentence("baabbababaabb"))
+
+    def test_determinize_automaton(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        q3 = State("q3")
+        automaton = FiniteAutomaton({q0, q1, q2, q3}, {'a', 'b'}, q0, {q3})
+        automaton.insert_transition(q0, 'a', q0)
+        automaton.insert_transition(q0, 'b', q0)
+        automaton.insert_transition(q0, 'b', q1)
+        automaton.insert_transition(q1, 'a', q2)
+        automaton.insert_transition(q2, 'b', q3)
+        automaton.insert_transition(q3, 'a', q3)
+        automaton.insert_transition(q3, 'b', q3)
+        #{x|x in (a,b)* and bab in x}
+        determinized = automaton.copy()
+
+        #pdb.set_trace()
+        determinized.determinize()
+
+        self.assertFalse(determinized.is_nondeterministic())
+        self.assertTrue(determinized.recognize_sentence("abaaababbbaaaab"))
+        self.assertTrue(determinized.recognize_sentence("baaaaaabbbbbbbbabbaaaaaa"))
+        self.assertFalse(determinized.recognize_sentence("aaaabaabaabaabaab"))
+'''
+    def test_automaton_intersection(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        states = {q0, q1}
+        alphabet = {'a', 'b'}
+        automaton = FiniteAutomaton(states, alphabet, q0, {q0})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q0, 'b', q1)
+        automaton.insert_transition(q1, 'a', q0)
+        automaton.insert_transition(q1, 'b', q0)
+        #L(M) = {x|x in (a,b)* ^ |x| is even}
+        other = FiniteAutomaton(states, alphabet, q0, {q0, q1})
+        other.insert_transition(q0, 'a', q0)
+        other.insert_transition(q0, 'b', q1)
+        other.insert_transition(q1, 'a', q0)
+        #L(M) = {x|x in (a,b)* ^ bb not in x}
+
+        intersection = automaton.intersection(other)
+
+        self.assertTrue(automaton.recognize_sentence("aabaab"))
+        self.assertTrue(other.recognize_sentence("aabaab"))
+        self.assertTrue(intersection.recognize_sentence("aabaab"))
+        self.assertFalse(intersection.recognize_sentence("abbaaa"))'''

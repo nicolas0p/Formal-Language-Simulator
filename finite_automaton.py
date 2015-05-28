@@ -5,11 +5,11 @@ import pdb
 class FiniteAutomaton():
 
     def __init__(self, states, alphabet, initial_state, final_states):
-        self._states = states  #set of States
-        self._alphabet = alphabet #set of letters
+        self._states = states.copy()  #set of States
+        self._alphabet = alphabet.copy() #set of letters
         self._transitions = {} #dict of State:{dict letter:set of States}
-        self._initial_state = initial_state #State
-        self._final_states = final_states #set of States
+        self._initial_state = initial_state.copy() #State
+        self._final_states = final_states.copy() #set of States
         self._epsilon = '&'
         self._alphabet.add(self._epsilon)
         for state in self._states:
@@ -116,42 +116,44 @@ class FiniteAutomaton():
         return self._states - alive
 
     def union(self, other):
-        old_states = [self._states, other._states]
         old_transitions = [self._transitions, other._transitions]
-        old_final_states = [self._final_states, other._final_states]
         states = set()
         transitions = {}
+        number = {self:0, other:1}
+        final_states = set()
         #dict of State:State where it represents old_state:new_state
-        converter = {}
-        for i in [0, 1]:
-            for old_state in old_states[i]:
+        converter = [{}, {}]
+        #translate states to new states
+        for current in [self, other]:
+            i = number[current]
+            for old_state in current._states:
                 new_state = State(old_state._name + str(i))
                 states.add(new_state)
                 transitions[new_state] = {}
-                converter[old_state] = new_state
+                converter[i][old_state] = new_state
+                if old_state in current._final_states:
+                    final_states.add(converter[i][old_state])
         alphabet = self._alphabet.union(other._alphabet)
-        final_states = self._final_states.union(other._final_states)
         initial = State("initial")
         states.add(initial)
         automaton = FiniteAutomaton(states, alphabet, initial, final_states)
         #translate transitions to new name of each state
-        for i in [0, 1]:
+        for current in [self, other]:
+            i = number[current]
             for old_source in old_transitions[i]:
                 for letter in old_transitions[i][old_source]:
-                    new_source = converter[old_source]
+                    new_source = converter[i][old_source]
                     transitions[new_source][letter] = set()
                     for old_destiny in old_transitions[i][old_source][letter]:
-                        new_destiny = converter[old_destiny]
+                        new_destiny = converter[i][old_destiny]
                         automaton.insert_transition(new_source, letter, new_destiny)
-            for state in old_final_states[i]:
-                automaton._final_states.remove(state)
-                automaton._final_states.add(converter[state])
 
         #copy old initial states transitions to new initial state
         for to_copy in {self, other}:
+            i = number[to_copy]
             for letter in to_copy._alphabet:
                 for destiny in to_copy._transitions[to_copy._initial_state][letter]:
-                    automaton.insert_transition(initial, letter, converter[destiny])
+                    automaton.insert_transition(initial, letter, converter[i][destiny])
         if self._initial_state in self._final_states or other._initial_state in other._final_states:
             automaton._final_states.add(initial)
         return automaton
@@ -167,18 +169,68 @@ class FiniteAutomaton():
         error_state = State("fi")
         self.insert_state(error_state)
         for state in self._states:
-            for letter in self._alphabet:
-                if self._transitions[state] == set():
+            for letter in self._alphabet - {self._epsilon}:
+                if self._transitions[state][letter] == set():
                     self.insert_transition(state, letter, error_state)
+        for letter in self._alphabet - {self._epsilon}:
+            self._transitions[error_state][letter] = {error_state}
         return error_state
 
+    def intersection(self, other):
+        complement1 = self.complement()
+        complement2 = other.complement()
+        union = complement1.union(complement2)
+        final = union.complement()
+        return final
+
+    def determinize(self):
+        if not self.is_nondeterministic():
+            return
+        states = set() #will contain the State objects
+        multi_states = [] #will contain sets of states, every set will be transformed in a State object
+        transitions = {}
+        to_be_added = [{self._initial_state}]
+        final_states = set()
+        while to_be_added != []:
+            #adds the multi_states that the states reach in new_states
+            for multi_state in to_be_added:
+                for letter in self._alphabet:
+                    destiny_union = set()
+                    for state in multi_state:
+                        pluri_destiny = self._transitions[state][letter]
+                        destiny_union.update(pluri_destiny)
+                    if destiny_union not in to_be_added:
+                        to_be_added.append(destiny_union)
+            to_be_added = [x for x in to_be_added if x not in multi_states]
+            multi_states.extend(to_be_added)
+
+        #Creates a state for each multi_state
+        for multi_state in multi_states:
+            new_state = State(''.join(sorted([x._name for x in multi_state])))
+            states.add(new_state)
+            transitions[new_state] = {}
+            if self._final_states.intersection(multi_state) != set():
+                final_states.add(new_state)
+            for letter in self._alphabet:
+                destiny_union = set()
+                for sub_state in multi_state:
+                    pluri_destiny = self._transitions[sub_state][letter]
+                    destiny_union.update(pluri_destiny)
+                destiny = State(''.join(sorted([x._name for x in destiny_union])))
+                transitions[new_state][letter] = {destiny}
+
+        self._states = states
+        self._final_states = final_states
+        self._transitions = transitions
+
+
     def copy(self):
-        automaton = FiniteAutomaton(self._states.copy(), self._alphabet.copy(), self._initial_state, self._final_states.copy())
+        automaton = FiniteAutomaton(self._states.copy(), self._alphabet.copy(), self._initial_state.copy(), self._final_states.copy())
         automaton._transitions = copy.deepcopy(self._transitions)
         return automaton
 
     def __repr__(self):
-        return str(self._alphabet) + str(self._states) + str(self._transitions) + str(self._final_states)
+        return str(self._alphabet) + str(self._states) + str(self._transitions) + str(self._initial_state)+ str(self._final_states)
 
 class State():
 
@@ -188,8 +240,14 @@ class State():
     def __hash__(self):
         return hash(self._name)
 
+    def copy(self):
+        return State(self._name)
+
     def __eq__(self, other):
         return self._name == other._name
+
+    def __lt__(self, other):
+        return self._name < other._name
 
     def __repr__(self):
         return self._name
