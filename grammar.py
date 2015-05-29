@@ -1,6 +1,6 @@
 import copy
-from non_deterministic_finite_automaton import State
-from non_deterministic_finite_automaton import NonDeterministicFiniteAutomaton
+from finite_automaton import State
+from finite_automaton import FiniteAutomaton
 
 class Grammar():
 
@@ -24,7 +24,7 @@ class Grammar():
     def productions_quantity(self):
         return len(self._productions)
 
-    def to_non_deterministic_finite_automaton(self):
+    def to_finite_automaton(self):
         # get initial state as the initial symbol
         initial_state = State(self._initial_symbol)
         # create a 'final' state that will get the productions that go just for a terminal
@@ -65,7 +65,7 @@ class Grammar():
         #print("nonterminals_states",nonterminals_states)
 
         # create a ndfa from the states, terminals, initial state and final states gathered above
-        ndfa = NonDeterministicFiniteAutomaton(states, self._terminals, initial_state, final_states)
+        ndfa = FiniteAutomaton(states, self._terminals, initial_state, final_states)
 
         # create the transitions from the productions
         for production in self._productions:
@@ -90,8 +90,10 @@ class Grammar():
                 ndfa.insert_transition(state, production._right[0], other_state)
                 #print(production._left, '--', production._right[0], '->', production._right[1])
 
-        # returns the mounted ndfa
+        # determinize the ndfa and return it
+        ndfa.determinize()
         return ndfa
+
 
     def __str__(self):
         productions = {}
