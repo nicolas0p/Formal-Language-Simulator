@@ -160,6 +160,7 @@ class FiniteAutomaton():
 
     def complement(self):
         automaton = self.copy()
+        automaton.determinize()
         automaton._add_error_state()
         new_final_states = automaton._states - automaton._final_states
         automaton._final_states = new_final_states

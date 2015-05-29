@@ -249,11 +249,12 @@ class TestFiniteAutomaton(unittest.TestCase):
         #pdb.set_trace()
         determinized.determinize()
 
+        self.assertTrue(automaton.is_nondeterministic())
         self.assertFalse(determinized.is_nondeterministic())
         self.assertTrue(determinized.recognize_sentence("abaaababbbaaaab"))
         self.assertTrue(determinized.recognize_sentence("baaaaaabbbbbbbbabbaaaaaa"))
         self.assertFalse(determinized.recognize_sentence("aaaabaabaabaabaab"))
-'''
+
     def test_automaton_intersection(self):
         q0 = State("q0")
         q1 = State("q1")
@@ -276,4 +277,4 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertTrue(automaton.recognize_sentence("aabaab"))
         self.assertTrue(other.recognize_sentence("aabaab"))
         self.assertTrue(intersection.recognize_sentence("aabaab"))
-        self.assertFalse(intersection.recognize_sentence("abbaaa"))'''
+        self.assertFalse(intersection.recognize_sentence("abbaaa"))
