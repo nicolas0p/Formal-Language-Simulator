@@ -1,3 +1,6 @@
+from finite_automaton import FiniteAutomaton
+from finite_automaton import State
+
 class RegularExpression:
     def __init__(self, string, terminals = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't'}):
         self._string = string
@@ -66,7 +69,7 @@ class RegularExpression:
 
     def _get_de_simone_tree(self):
         symbol = self._get_less_significant()
-        node = 'BANANA'
+        node = None
 
         if len(self._string) > 1:
             left = self._string[:symbol[1]]
@@ -82,6 +85,9 @@ class RegularExpression:
                 node = DeSimoneRepetition(left)
             elif symbol[0] == '.':
                 node = DeSimoneConcatenation(left,right)
+
+            left._parent = node
+            right._parent = node
         else:
             node = DeSimoneNode(symbol[0])
 
@@ -89,7 +95,68 @@ class RegularExpression:
 
 
     def to_deterministic_finite_automaton(self):
-        pass
+        tree = self._get_de_simone_tree()
+
+        # creating the initial state of the automaton, as it should have at least one state
+        initial_state = State('q0')
+        # gonna use this to create generic names for the states, as "q1","q2","q3" 
+        state_numerator = 1;
+
+        # will be the table we have the states layed out, as if we were doing it by hand
+        table = []
+        # we put the first state and its composition, so we're ready to start the loop by analyzing its composition
+        # and take the information needed to create the other states
+        table.append({'state':initial_state, 'transitions':{}, 'composition':tree.down(), 'final': false})
+        # the other states are put after the initial one on the table, so the loop doesnt end until it analyzes all
+        # the needed states
+
+        for state in table:
+
+            # we're looping through the states already on the table, these are the states we're certain will be needed
+            # we'll be analyzing their composition and decide if a new state is needed
+
+            for node in state['composition']:
+
+                # looking at each node on the composition of a state,
+                # if we find lambda this state is final, so we mark it as so
+                if node._symbol == 'Lambda':
+                    state['final'] = true
+                # if it's not lambda, and there isn't a transition through this state symbol
+                # we create this transition, and put a supposed new state there
+                # we also populate this new state composition with the node thread back
+                # se we can after this decide if a new state is needed on the table, or we can use a state with the
+                # same composition that is already on the table
+                elif node._symbol not in state['transitions']:
+                    new_state = State('q%i' % state_numerator)
+                    state_numerator += 1
+                    state['transitions'][node._symbol] = {'state':new_state,'composition':{node._thread_back()}}
+                # and if we already have a transition through this node symbol we then unite this node's thread back
+                # with the supposed new state composition
+                else:
+                    state['transitions'][node._symbol]['composition'] |= node._thread_back()
+
+            # at this point we have supposed new states on this state transitions
+            # we need to analyze if their compositions aren't identical to a state's composition already on the table
+            # if this happen, we replace the supposed new state with the one on the table
+            # otherwise, if there isn't a state with its compostion on the table, we put the new state on it
+
+            for new_state in state['transitions']:
+                # if this state composition is not identical to any state's on table composition
+                # then we add this state to the table
+                if new_state['composition'] not in [line['composition'] for line in table]:
+                    table.append({'state':new_state['state'],'transitions':{}, 'composition': new_state['composition'], 'final': false})
+                # if we already have a state with this state's composition on the table
+                # then we replace this state on the transition by the one that is already on the table
+                else:
+                    pass
+
+
+
+        return table
+
+
+
+
 
 # "|" Alternation
 # "*" Repetition
@@ -100,21 +167,53 @@ class DeSimoneNode:
         self._symbol = symbol
         self._left = left
         self._right = right
+        self._parent = None
 
     def __str__(self):
         return '{%s[%s]%s}' % (self._left, self._symbol,self._right)
+
+    def down(self):
+        return {self}
+
+    def _thread_back(self):
+        if self._parent == None:
+            return DeSimoneLambda
+        elif self._parent._left == self:
+            return self._parent
+        else:
+            return self._parent._thread_back()
+
+class DeSimoneLambda:
+    _symbol = 'Lambda'
+    def up():
+        return {DeSimoneLambda}
 
 class DeSimoneAlternation(DeSimoneNode):
     def __init__(self, left, right):
         DeSimoneNode.__init__(self,'|',left,right)
 
+    def down(self):
+        return self._left.down() | self._right.down()
+
+    def up(self):
+        return self._thread_back().up()
+
 class DeSimoneRepetition(DeSimoneNode):
     def __init__(self, left):
         DeSimoneNode.__init__(self,'*',left)
+
+    def down(self):
+        return self._left.down() | self._thread_back().up()
+
+    def up(self):
+        return self.down()
 
 class DeSimoneConcatenation(DeSimoneNode):
     def __init__(self,left,right):
         DeSimoneNode.__init__(self,'.',left,right)
 
-# a = RegularExpression('(ab)*|ba');
-# print(a._get_de_simone_tree());
+    def down(self):
+        return self._left.down()
+
+    def up(self):
+        return self._right.down()
