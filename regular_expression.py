@@ -99,14 +99,14 @@ class RegularExpression:
 
         # creating the initial state of the automaton, as it should have at least one state
         initial_state = State('q0')
-        # gonna use this to create generic names for the states, as "q1","q2","q3" 
+        # gonna use this to create generic names for the states, as "q1","q2","q3"
         state_numerator = 1;
 
         # will be the table we have the states layed out, as if we were doing it by hand
         table = []
         # we put the first state and its composition, so we're ready to start the loop by analyzing its composition
         # and take the information needed to create the other states
-        table.append({'state':initial_state, 'transitions':{}, 'composition':tree.down(), 'final': false})
+        table.append({'state':initial_state, 'transitions':{}, 'composition':tree.down(), 'final': False})
         # the other states are put after the initial one on the table, so the loop doesnt end until it analyzes all
         # the needed states
 
@@ -116,11 +116,12 @@ class RegularExpression:
             # we'll be analyzing their composition and decide if a new state is needed
 
             for node in state['composition']:
+                print(state['state'], node)
 
                 # looking at each node on the composition of a state,
                 # if we find lambda this state is final, so we mark it as so
                 if node._symbol == 'Lambda':
-                    state['final'] = true
+                    state['final'] = True
                 # if it's not lambda, and there isn't a transition through this state symbol
                 # we create this transition, and put a supposed new state there
                 # we also populate this new state composition with the node thread back
@@ -129,7 +130,7 @@ class RegularExpression:
                 elif node._symbol not in state['transitions']:
                     new_state = State('q%i' % state_numerator)
                     state_numerator += 1
-                    state['transitions'][node._symbol] = {'state':new_state,'composition':{node._thread_back()}}
+                    state['transitions'][node._symbol] = {'state':new_state,'composition':node._thread_back().up()}
                 # and if we already have a transition through this node symbol we then unite this node's thread back
                 # with the supposed new state composition
                 else:
@@ -138,25 +139,43 @@ class RegularExpression:
             # at this point we have supposed new states on this state transitions
             # we need to analyze if their compositions aren't identical to a state's composition already on the table
             # if this happen, we replace the supposed new state with the one on the table
-            # otherwise, if there isn't a state with its compostion on the table, we put the new state on it
+            # otherwise, if there isn't a state with its composition on the table, we put the new state on it
 
-            for new_state in state['transitions']:
+            for transition_symbol in state['transitions']:
+                new_state = state['transitions'][transition_symbol]
                 # if this state composition is not identical to any state's on table composition
                 # then we add this state to the table
                 if new_state['composition'] not in [line['composition'] for line in table]:
-                    table.append({'state':new_state['state'],'transitions':{}, 'composition': new_state['composition'], 'final': false})
+                    table.append({'state':new_state['state'],'transitions':{}, 'composition': new_state['composition'], 'final': False})
                 # if we already have a state with this state's composition on the table
                 # then we replace this state on the transition by the one that is already on the table
                 else:
-                    pass
+                    # what a beatiful line of code, sqn
+                    state['transitions'][transition_symbol] = [line for line in table if line['composition'] == new_state['composition']][0]
 
+        # now we have all the states on the table and they're linked to each other througt the transitions
+        # they're already marked as final if they're so
+        # so we'll begin to mount the automaton, FiniteAutomaton(states, alphabet, initial_state, final_states)
 
+        states = set([line['state'] for line in table])
 
-        return table
+        # could be replaced by the terminals found on the transitions
+        alphabet = self._terminals
 
+        # initial_state is already setted
 
+        final_states = set([line['state'] for line in table if line['final']])
 
+        fa = FiniteAutomaton(states, alphabet, initial_state, final_states)
 
+        # now we need to add the transitions
+        for state in table:
+            for transition_symbol in state['transitions']:
+                fa.insert_transition(state['state'], transition_symbol, state['transitions'][transition_symbol]['state'])
+
+        # supposedly should already be deterministic
+
+        return fa
 
 # "|" Alternation
 # "*" Repetition
