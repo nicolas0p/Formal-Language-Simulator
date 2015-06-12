@@ -292,6 +292,11 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertFalse(automaton.has_transition(q0, 'a', q1))
         self.assertTrue(automaton.has_transition(q0, 'b', q1))
         self.assertTrue(automaton.has_transition(q1, 'a', q0))
+
+    def test_all_alphabet_members_are_one_character_only(self):
+        q0 = State("q0")
+        self.assertRaises(Exception, FiniteAutomaton, {q0}, {'b', 'ab'}, q0, {q0})
+
 '''
     def test_remove_equivalent_states(self):
         q = []
@@ -322,4 +327,3 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertFalse(old.recognize_sentence("baaaaba"))
         self.assertFalse(automaton.recognize_sentence("baaaaba"))
 '''
-

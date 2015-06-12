@@ -15,6 +15,8 @@ class FiniteAutomaton():
         for state in self._states:
             self._transitions[state] = {}
             for letter in self._alphabet:
+                if len(letter) != 1:
+                    raise Exception("Alphabet members must be size one only!")
                 self._transitions[state][letter] = set()
 
     def insert_state(self, state):
