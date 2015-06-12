@@ -232,6 +232,9 @@ class FiniteAutomaton():
         self._final_states = final_states
         self._transitions = transitions
 
+    def is_empty(self):
+        return self._initial_state in self._find_dead_states()
+
     def copy(self):
         automaton = FiniteAutomaton(self._states.copy(), self._alphabet.copy(), self._initial_state.copy(), self._final_states.copy())
         automaton._transitions = copy.deepcopy(self._transitions)

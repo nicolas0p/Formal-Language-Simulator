@@ -297,6 +297,31 @@ class TestFiniteAutomaton(unittest.TestCase):
         q0 = State("q0")
         self.assertRaises(Exception, FiniteAutomaton, {q0}, {'b', 'ab'}, q0, {q0})
 
+    def test_is_the_empty_language(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        q3 = State("q3")
+        automaton = FiniteAutomaton({q0, q1, q2, q3}, {'a', 'b'}, q0, {q3})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q1, 'b', q2)
+        automaton.insert_transition(q3, 'a', q2)
+
+        self.assertTrue(automaton.is_empty())
+
+    def test_is_not_the_empty_language(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        q3 = State("q3")
+        automaton = FiniteAutomaton({q0, q1, q2, q3}, {'a', 'b'}, q0, {q3})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q1, 'b', q2)
+        automaton.insert_transition(q2, 'a', q3)
+        automaton.insert_transition(q3, 'a', q2)
+
+        self.assertFalse(automaton.is_empty())
+
 '''
     def test_remove_equivalent_states(self):
         q = []
