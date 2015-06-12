@@ -246,7 +246,6 @@ class TestFiniteAutomaton(unittest.TestCase):
         #{x|x in (a,b)* and bab in x}
         determinized = automaton.copy()
 
-        #pdb.set_trace()
         determinized.determinize()
 
         self.assertTrue(automaton.is_nondeterministic())
@@ -278,3 +277,49 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertTrue(other.recognize_sentence("aabaab"))
         self.assertTrue(intersection.recognize_sentence("aabaab"))
         self.assertFalse(intersection.recognize_sentence("abbaaa"))
+
+    def test_remove_transition(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        automaton = FiniteAutomaton({q0, q1}, {'a', 'b'}, q0, {q1})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q0, 'b', q1)
+        automaton.insert_transition(q1, 'a', q0)
+        automaton.insert_transition(q1, 'b', q0)
+
+        automaton.remove_transition(q0, 'a', q1)
+
+        self.assertFalse(automaton.has_transition(q0, 'a', q1))
+        self.assertTrue(automaton.has_transition(q0, 'b', q1))
+        self.assertTrue(automaton.has_transition(q1, 'a', q0))
+'''
+    def test_remove_equivalent_states(self):
+        q = []
+        for i in range(0, 6):
+            q.append(State("q" + str(i)))
+        states = set(q)
+        alphabet = {'a', 'b'}
+        automaton = FiniteAutomaton(states, alphabet, q[0], {q[0], q[5]})
+        automaton.insert_transition(q[0], 'a', q[5])
+        automaton.insert_transition(q[0], 'b', q[1])
+        automaton.insert_transition(q[1], 'a', q[4])
+        automaton.insert_transition(q[1], 'b', q[3])
+        automaton.insert_transition(q[2], 'a', q[2])
+        automaton.insert_transition(q[2], 'b', q[5])
+        automaton.insert_transition(q[3], 'a', q[4])
+        automaton.insert_transition(q[3], 'b', q[0])
+        automaton.insert_transition(q[4], 'a', q[1])
+        automaton.insert_transition(q[4], 'b', q[2])
+        automaton.insert_transition(q[5], 'a', q[5])
+        automaton.insert_transition(q[5], 'b', q[4])
+        old = automaton.copy()
+
+        pdb.set_trace()
+        automaton.remove_equivalent_states()
+
+        self.assertTrue(old.recognize_sentence("aaaaaaababba"))
+        self.assertTrue(automaton.recognize_sentence("aaaaaaababba"))
+        self.assertFalse(old.recognize_sentence("baaaaba"))
+        self.assertFalse(automaton.recognize_sentence("baaaaba"))
+'''
+

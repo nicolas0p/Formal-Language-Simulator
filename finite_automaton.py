@@ -40,6 +40,12 @@ class FiniteAutomaton():
             raise Exception("Letter does not belong to alphabet")
         self._transitions[source][letter].add(destiny)
 
+    def remove_transition(self, source, letter, destiny):
+        try:
+            self._transitions[source][letter].remove(destiny)
+        except KeyError:
+            return
+
     def has_transition(self, source, letter, destiny):
         try:
             return destiny in self._transitions[source][letter]
@@ -224,7 +230,6 @@ class FiniteAutomaton():
         self._final_states = final_states
         self._transitions = transitions
 
-
     def copy(self):
         automaton = FiniteAutomaton(self._states.copy(), self._alphabet.copy(), self._initial_state.copy(), self._final_states.copy())
         automaton._transitions = copy.deepcopy(self._transitions)
@@ -232,6 +237,59 @@ class FiniteAutomaton():
 
     def __repr__(self):
         return str(self._alphabet) + str(self._states) + str(self._transitions) + str(self._initial_state)+ str(self._final_states)
+
+'''
+    def remove_equivalent_states(self):
+        self.determinize()
+        error_state = self._add_error_state()
+        equivalence_classes = self._find_equivalence_classes()
+        q = []
+        transitions = {}
+        final_states = set()
+        for i in range(0, len(equivalence_classes)):
+            state = State("q" + str(i))
+            q.append(state)
+            transitions[state] = {}
+            transitions[state][self._epsilon] = set()
+        for i in range(0, len(equivalence_classes)):
+            #any state in equivalent_class number i
+            state = next(iter(equivalence_classes[i]))
+            if state in self._final_states:
+                final_states.add(q[i])
+            for letter in self._alphabet - {self._epsilon}:
+                #delta(state, letter, tran_qi)
+                tran_qi = next(iter(self._transitions[state][letter]))
+                location = [equivalence_classes.index(y) for y in equivalence_classes if tran_qi in y][0]
+                #gets the number of the class of tran_qi
+                transitions[q[i]][letter] = {q[location]}
+        self._states = set(q)
+        self._transitions = transitions
+        self._final_states = final_states
+        self.remove_dead_states()
+
+    def _find_equivalence_classes(self):
+        equivalence_classes = [self._final_states.copy(), self._states - self._final_states]
+        old = []
+        while equivalence_classes != old:
+            old = copy.deepcopy(equivalence_classes)
+            for clas in old:
+                for state1 in clas:
+                    for state2 in clas:
+                        if not self._are_equivalent_states(state1, state2, old):
+                            state2_class = [x for x in equivalence_classes if state2 in x][0]
+                            state2_class.remove(state2)
+                            equivalence_classes.append({state2})
+        return [x for x in equivalence_classes if len(x) > 0]
+
+    def _are_equivalent_states(self, state1, state2, equivalence_classes):
+        for letter in self._alphabet - {self._epsilon}:
+            tran_state1 = next(iter(self._transitions[state1][letter]))
+            tran_state2 = next(iter(self._transitions[state2][letter]))
+            one = [x for x in equivalence_classes if tran_state1 in x][0]
+            if tran_state2 not in one:
+                return False
+        return True
+'''
 
 class State():
 
