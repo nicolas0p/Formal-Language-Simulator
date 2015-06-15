@@ -322,6 +322,12 @@ class FiniteAutomaton():
         self.remove_dead_states()
         self.remove_equivalent_states()
 
+    def __sub__(self, other):
+        return self.intersection(other.complement())
+
+    def is_equal(self, other):
+        return (self - other).is_empty() and (other - self).is_empty()
+
 class State():
 
     def __init__(self, name):

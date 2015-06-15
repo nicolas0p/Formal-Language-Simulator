@@ -374,8 +374,24 @@ class TestFiniteAutomaton(unittest.TestCase):
         automaton.insert_transition(q3, 'b', q3)
         automaton.insert_transition(q3, 'a', q2)
 
-        #pdb.set_trace()
         automaton.minimize()
 
         self.assertSetEqual(automaton._states, {q0, q1})
         self.assertTrue(automaton.recognize_sentence("baabaabaababab"))
+
+    def test_automata_subtraction(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        abstar = FiniteAutomaton({q0}, {'a', 'b'}, q0, {q0})
+        abstar.insert_transition(q0, 'a', q0)
+        abstar.insert_transition(q0, 'b', q0)
+
+        evena = FiniteAutomaton({q0, q1}, {'a', 'b'}, q0, {q0})
+        evena.insert_transition(q0, 'b', q0)
+        evena.insert_transition(q0, 'a', q1)
+        evena.insert_transition(q1, 'b', q1)
+        evena.insert_transition(q1, 'a', q0)
+
+        subtraction = abstar - evena
+
+        self.assertTrue(subtraction.recognize_sentence("babbbaba"))
