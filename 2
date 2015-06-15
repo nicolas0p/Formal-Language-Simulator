@@ -175,8 +175,6 @@ class FiniteAutomaton():
         return automaton
 
     def _add_error_state(self):
-        if self.is_completely_defined():
-            return
         error_state = State("fi")
         self.insert_state(error_state)
         for state in self._states:
@@ -281,7 +279,7 @@ class FiniteAutomaton():
             equivalence_classes = []
             for clas in old:
                 equivalence_classes.extend(self._find_equivalent_states(clas, old))
-        return equivalence_classes
+        return [x for x in equivalence_classes if len(x) > 0]
 
     def _find_equivalent_states(self, clas, old):
         equivalence_classes = []
@@ -309,18 +307,11 @@ class FiniteAutomaton():
                 return False
         return True
 
-    def is_completely_defined(self):
-        for letter in self._alphabet - {self._epsilon}:
-            for state in self._states:
-                if self._transitions[state][letter] == set():
-                    return False
-        return True
-
     def minimize(self):
         self.determinize()
-        self.remove_unreachable_states()
-        self.remove_dead_states()
-        self.remove_equivalent_states()
+        self.remove_unreachable_states
+        self.remove_dead_states
+        self.remove_equivalent_states
 
 class State():
 

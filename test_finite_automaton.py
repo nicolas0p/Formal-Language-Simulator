@@ -322,7 +322,6 @@ class TestFiniteAutomaton(unittest.TestCase):
 
         self.assertFalse(automaton.is_empty())
 
-'''
     def test_remove_equivalent_states(self):
         q = []
         for i in range(0, 6):
@@ -344,11 +343,39 @@ class TestFiniteAutomaton(unittest.TestCase):
         automaton.insert_transition(q[5], 'b', q[4])
         old = automaton.copy()
 
-        pdb.set_trace()
         automaton.remove_equivalent_states()
 
         self.assertTrue(old.recognize_sentence("aaaaaaababba"))
         self.assertTrue(automaton.recognize_sentence("aaaaaaababba"))
         self.assertFalse(old.recognize_sentence("baaaaba"))
         self.assertFalse(automaton.recognize_sentence("baaaaba"))
-'''
+
+    def test_is_automata_completely_defined(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        automaton = FiniteAutomaton({q0, q1}, {'a', 'b'}, q0, {q1})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q1, 'a', q0)
+
+        self.assertFalse(automaton.is_completely_defined())
+
+    def test_minimize_automaton(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        q3 = State("q3")
+        automaton = FiniteAutomaton({q0, q1, q2, q3}, {'a', 'b'}, q0, {q0, q2})
+        automaton.insert_transition(q0, 'b', q2)
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q1, 'b', q1)
+        automaton.insert_transition(q1, 'a', q2)
+        automaton.insert_transition(q2, 'b', q2)
+        automaton.insert_transition(q2, 'a', q3)
+        automaton.insert_transition(q3, 'b', q3)
+        automaton.insert_transition(q3, 'a', q2)
+
+        #pdb.set_trace()
+        automaton.minimize()
+
+        self.assertSetEqual(automaton._states, {q0, q1})
+        self.assertTrue(automaton.recognize_sentence("baabaabaababab"))
