@@ -192,6 +192,32 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertTrue(union.recognize_sentence("baababa"))
         self.assertFalse(union.recognize_sentence("aaababbbaaba"))
 
+    def test_automata_union_3(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        states = {q0, q1}
+        alphabet = {'a', 'b'}
+        automaton = FiniteAutomaton(states, alphabet, q0, {q0, q1})
+        automaton.insert_transition(q0, 'a', q0)
+        automaton.insert_transition(q0, 'b', q1)
+        automaton.insert_transition(q1, 'a', q0)
+        #L(M) = {x|x in (a,b)* ^ bb not in x}
+        q2 = State("q2")
+        div3 = FiniteAutomaton({q0, q1, q2}, {'a', 'b'}, q0, {q0})
+        div3.insert_transition(q0, 'a', q1)
+        div3.insert_transition(q0, 'b', q1)
+        div3.insert_transition(q1, 'a', q2)
+        div3.insert_transition(q1, 'b', q2)
+        div3.insert_transition(q2, 'a', q0)
+        div3.insert_transition(q2, 'b', q0)
+
+        union = automaton.union(div3)
+
+        self.assertTrue(union.recognize_sentence("abbaaabba"))
+        self.assertTrue(union.recognize_sentence("aaabaaabaa"))
+        self.assertFalse(union.recognize_sentence("bbabbaa"))
+
+
     def test_recognize_nondeterministic(self):
         q0 = State("q0")
         q1 = State("q1")
@@ -395,3 +421,29 @@ class TestFiniteAutomaton(unittest.TestCase):
         subtraction = abstar - evena
 
         self.assertTrue(subtraction.recognize_sentence("babbbaba"))
+        self.assertTrue(subtraction.recognize_sentence("a"))
+        self.assertFalse(subtraction.recognize_sentence("abababa"))
+
+    def test_automata_equality(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        q3 = State("q3")
+        automaton = FiniteAutomaton({q0, q1, q2, q3}, {'a', 'b'}, q0, {q0, q2})
+        automaton.insert_transition(q0, 'b', q2)
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q1, 'b', q1)
+        automaton.insert_transition(q1, 'a', q2)
+        automaton.insert_transition(q2, 'b', q2)
+        automaton.insert_transition(q2, 'a', q3)
+        automaton.insert_transition(q3, 'b', q3)
+        automaton.insert_transition(q3, 'a', q2)
+
+        evena = FiniteAutomaton({q0, q1}, {'a', 'b'}, q0, {q0})
+        evena.insert_transition(q0, 'b', q0)
+        evena.insert_transition(q0, 'a', q1)
+        evena.insert_transition(q1, 'b', q1)
+        evena.insert_transition(q1, 'a', q0)
+
+        #pdb.set_trace()
+        self.assertTrue(evena.is_equal(automaton))

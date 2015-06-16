@@ -104,7 +104,7 @@ class FiniteAutomaton():
                 for letter in self._transitions[state]:
                     through_actual.update(self._transitions[state][letter])
                 temp.update(through_actual)
-            reachable_state = temp.union({self._initial_state})
+            reachable_state.update(temp)
         return reachable_state
 
     def remove_dead_states(self):
@@ -194,6 +194,15 @@ class FiniteAutomaton():
         final = union.complement()
         return final
 
+    def _epsilon_closure(self, state):
+        closure = {state}
+        old = set()
+        while old != closure:
+            old = closure.copy()
+            for q in old:
+                closure.update(self._transitions[q][self._epsilon])
+        return closure
+
     def determinize(self):
         if not self.is_nondeterministic():
             return
@@ -205,11 +214,13 @@ class FiniteAutomaton():
         while to_be_added != []:
             #adds the multi_states that the states reach in new_states
             for multi_state in to_be_added:
-                for letter in self._alphabet:
+                for letter in self._alphabet - {self._epsilon}:
                     destiny_union = set()
                     for state in multi_state:
-                        pluri_destiny = self._transitions[state][letter]
-                        destiny_union.update(pluri_destiny)
+                        closure = self._epsilon_closure(state)
+                        for q in closure:
+                            pluri_destiny = self._transitions[q][letter]
+                            destiny_union.update(pluri_destiny)
                     if destiny_union not in to_be_added:
                         to_be_added.append(destiny_union)
             to_be_added = [x for x in to_be_added if x not in multi_states]
@@ -229,6 +240,8 @@ class FiniteAutomaton():
                     destiny_union.update(pluri_destiny)
                 destiny = State(''.join(sorted([x._name for x in destiny_union])))
                 transitions[new_state][letter] = {destiny}
+                if destiny_union == set():
+                    transitions[new_state][letter] = set()
 
         self._states = states
         self._final_states = final_states
@@ -247,7 +260,7 @@ class FiniteAutomaton():
 
     def remove_equivalent_states(self):
         self.determinize()
-        error_state = self._add_error_state()
+        self._add_error_state()
         equivalence_classes = self._find_equivalence_classes()
         q = []
         transitions = {}
@@ -268,6 +281,8 @@ class FiniteAutomaton():
                 location = [equivalence_classes.index(y) for y in equivalence_classes if tran_qi in y][0]
                 #gets the number of the class of tran_qi
                 transitions[q[i]][letter] = {q[location]}
+        initial_state_class_nb = [equivalence_classes.index(y) for y in equivalence_classes if self._initial_state in y][0]
+        self._initial_state = q[initial_state_class_nb]
         self._states = set(q)
         self._transitions = transitions
         self._final_states = final_states
