@@ -6,62 +6,281 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>850</width>
     <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>500</width>
+    <width>850</width>
     <height>500</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>500</width>
+    <width>850</width>
     <height>500</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Formal Languages Simulator</string>
+   <string>Formal Language Simulator - Nícolas Pfeifer &amp; Evandro Sasse</string>
   </property>
-  <property name="windowOpacity">
-   <double>1.000000000000000</double>
-  </property>
-  <widget class="QWidget" name="verticalLayoutWidget">
+  <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>9</x>
-     <y>9</y>
-     <width>481</width>
-     <height>481</height>
+     <x>0</x>
+     <y>0</y>
+     <width>851</width>
+     <height>501</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="sizeConstraint">
-     <enum>QLayout::SetDefaultConstraint</enum>
-    </property>
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="40,12">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QTableView" name="fa_table"/>
+     <layout class="QGridLayout" name="gridLayout" columnstretch="0,62,80">
+      <item row="2" column="1">
+       <widget class="QPushButton" name="er_equals_gr_btn">
+        <property name="text">
+         <string>Verificar Equivalência entre ER e GR</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="int_fa_a_btn">
+        <property name="text">
+         <string>Intersecção entre os AFs - Slot A</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="title">
+         <string>Gramática Regular</string>
+        </property>
+        <widget class="QWidget" name="verticalLayoutWidget_2">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>261</width>
+           <height>201</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QPlainTextEdit" name="gr_text">
+            <property name="placeholderText">
+             <string>S -&gt; aS | b </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="gr_fa_a_btn">
+              <property name="text">
+               <string>GR p/ AF - Slot A</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="gr_fa_b_btn">
+              <property name="text">
+               <string>GR p/ AF - Slot B</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>Autômato Finito - Slot A</string>
+        </property>
+        <widget class="QWidget" name="verticalLayoutWidget_3">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>341</width>
+           <height>201</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QTableWidget" name="fa_a_table"/>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="1">
+             <widget class="QPushButton" name="min_fa_a_btn">
+              <property name="text">
+               <string>Minimizar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QPushButton" name="det_af_a_btn">
+              <property name="text">
+               <string>Determinizar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="com_fa_a_btn">
+              <property name="text">
+               <string>Complemento</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QGroupBox" name="groupBox_4">
+        <property name="title">
+         <string>Autômato Finito - Slot B</string>
+        </property>
+        <widget class="QWidget" name="verticalLayoutWidget_4">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>341</width>
+           <height>201</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QTableView" name="fa_b_table"/>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="1">
+             <widget class="QPushButton" name="min_fa_b_btn">
+              <property name="text">
+               <string>Minimizar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QPushButton" name="det_fa_b_btn">
+              <property name="text">
+               <string>Determinizar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="com_fa_b_btn">
+              <property name="text">
+               <string>Complemento</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Expressão Regular</string>
+        </property>
+        <widget class="QWidget" name="verticalLayoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>261</width>
+           <height>201</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <item>
+           <widget class="QPlainTextEdit" name="er_text">
+            <property name="placeholderText">
+             <string>(0*(1(01*0)*1)*0*)*</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="1">
+             <widget class="QPushButton" name="er_fa_b_btn">
+              <property name="text">
+               <string>ER p/ AF - Slot B</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QPushButton" name="er_fa_a_btn">
+              <property name="text">
+               <string>ER p/ AF - Slot A</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="er_search_btn">
+            <property name="text">
+             <string>Procurar em texto usando esta ER</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
-       <widget class="QLineEdit" name="regex_txt">
-        <property name="placeholderText">
-         <string>Regex</string>
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="title">
+         <string>Autômatos das operações</string>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="regex_to_fa_btn">
-        <property name="text">
-         <string>Regex &gt; FA</string>
-        </property>
+        <widget class="QWidget" name="verticalLayoutWidget_6">
+         <property name="geometry">
+          <rect>
+           <x>-1</x>
+           <y>20</y>
+           <width>191</width>
+           <height>461</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QListView" name="fa_list"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="fa_list_a_btn">
+            <property name="text">
+             <string>Enviar para o Slot A</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="fa_list_b_btn">
+            <property name="text">
+             <string>Enviar para o Slot B</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>

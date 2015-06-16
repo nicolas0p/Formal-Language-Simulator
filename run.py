@@ -1,34 +1,38 @@
 import sys
 from PyQt5.QtWidgets import *
-from main_ui import Ui_Form
+from ui_main import Ui_Form
 
 from regular_expression import RegularExpression
 
-class MainInit(QDialog):
+class GUI(QDialog):
 	def __init__(self):
-		super(MainInit, self).__init__()
+		super(GUI, self).__init__()
 
 		# Set up the user interface from Designer.
 		self.ui = Ui_Form()
 		self.ui.setupUi(self)
 
 		# Connect up the buttons.
-		self.ui.regex_to_fa_btn.clicked.connect(self.set_main_automaton_with_regex)
+		self.ui.er_equals_gr_btn.clicked.connect(self.default_button_behavior)
+		self.ui.int_fa_a_btn.clicked.connect(self.default_button_behavior)
+		self.ui.gr_fa_a_btn.clicked.connect(self.default_button_behavior)
+		self.ui.gr_fa_b_btn.clicked.connect(self.default_button_behavior)
+		self.ui.min_fa_a_btn.clicked.connect(self.default_button_behavior)
+		self.ui.det_af_a_btn.clicked.connect(self.default_button_behavior)
+		self.ui.com_fa_a_btn.clicked.connect(self.default_button_behavior)
+		self.ui.min_fa_b_btn.clicked.connect(self.default_button_behavior)
+		self.ui.det_fa_b_btn.clicked.connect(self.default_button_behavior)
+		self.ui.com_fa_b_btn.clicked.connect(self.default_button_behavior)
+		self.ui.er_fa_b_btn.clicked.connect(self.default_button_behavior)
+		self.ui.er_fa_a_btn.clicked.connect(self.default_button_behavior)
+		self.ui.er_search_btn.clicked.connect(self.default_button_behavior)
+		self.ui.fa_list_a_btn.clicked.connect(self.default_button_behavior)
+		self.ui.fa_list_b_btn.clicked.connect(self.default_button_behavior)
 
-	def fill_table_with_automaton(self, m):
-		print(m)
-
-	def set_main_automaton_with_regex(self):
-		m = self.get_automatom_from_regex_dialog()
-		self.fill_table_with_automaton(m)
-
-	def get_automatom_from_regex_dialog(self):
-		s = QInputDialog.getText(self,"Expressão Regular -> FA", "Digite a Expressão Regular a ser convertida")[0]
-		r = RegularExpression(s)
-		m = r.to_deterministic_finite_automaton()
-		return m
+	def default_button_behavior(self):
+		print("Not implemented!!!")
 
 app = QApplication(sys.argv)
-window = MainInit()
+window = GUI()
 window.show()
 sys.exit(app.exec_())
