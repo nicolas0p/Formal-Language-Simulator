@@ -30,8 +30,11 @@ class FiniteAutomaton():
 
     def is_nondeterministic(self):
         for state in self._states:
+            has_epsilon = self._transitions[state][self._epsilon] != set()
             for letter in self._alphabet:
                 if len(self._transitions[state][letter]) > 1:
+                    return True
+                if has_epsilon and len(self._transitions[state][letter]) > 0:
                     return True
         return False
 
@@ -55,17 +58,21 @@ class FiniteAutomaton():
             return False
 
     def recognize_sentence(self, sentence):
-        if not self.is_nondeterministic():
-            return self._recognize_sentence_deterministic(sentence)
+        #if not self.is_nondeterministic():
+            #return self._recognize_sentence_deterministic(sentence)
         return self._recognize_sentence_nondeterministic(sentence, self._initial_state)
 
     def _recognize_sentence_nondeterministic(self, sentence, actual_state):
-        if sentence is "" and self._transitions[actual_state][self._epsilon] == set() :
+        if sentence is "":
             return actual_state in self._final_states
         if sentence[0] not in self._alphabet:
             return False
+        through_epsilon = self._transitions[actual_state][self._epsilon]
         for state in self._transitions[actual_state][sentence[0]]:
             if self._recognize_sentence_nondeterministic(sentence[1:], state):
+                return True
+        for state in through_epsilon:
+            if self._recognize_sentence_nondeterministic(sentence, state):
                 return True
         return False
 

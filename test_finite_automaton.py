@@ -445,5 +445,19 @@ class TestFiniteAutomaton(unittest.TestCase):
         evena.insert_transition(q1, 'b', q1)
         evena.insert_transition(q1, 'a', q0)
 
-        #pdb.set_trace()
         self.assertTrue(evena.is_equal(automaton))
+
+    def test_recognize_sentence_with_epsilon_transition(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        automaton = FiniteAutomaton({q0, q1, q2}, {'a', 'b'}, q0, {q2})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q1, 'a', q0)
+        automaton.insert_transition(q1, '&', q2)
+        automaton.insert_transition(q2, 'b', q2)
+
+        self.assertTrue(automaton.recognize_sentence("aaab"))
+        self.assertTrue(automaton.recognize_sentence("aaaaabbbbbbbb"))
+        self.assertFalse(automaton.recognize_sentence("aaaabbb"))
+
