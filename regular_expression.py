@@ -2,7 +2,7 @@ from finite_automaton import FiniteAutomaton
 from finite_automaton import State
 
 class RegularExpression:
-    def __init__(self, string, terminals = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't'}):
+    def __init__(self, string, terminals = {'0','1','2','3','4','5','6','7','8','9','a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't'}):
         self._string = string
         self._terminals = terminals
         self._normalize()
@@ -26,7 +26,9 @@ class RegularExpression:
                 ( pair[0] in self._terminals and pair[1] == '(' ) or \
                 ( pair[0] == ')' and pair[1] in self._terminals ) or \
                 ( pair[0] == '*' and pair[1] in self._terminals ) or \
+                ( pair[0] == '?' and pair[1] in self._terminals ) or \
                 ( pair[0] == '*' and pair[1] == '(' ) or \
+                ( pair[0] == '?' and pair[1] == '(' ) or \
                 ( pair[0] == ')' and pair[1] == '('):
 
                 string = string[:pos+1] + '.' + string[pos+1:]
@@ -62,7 +64,9 @@ class RegularExpression:
                     less_significant = ('.',i)
                 elif char == '*' and less_significant[0] not in ['|','.','*']:
                     less_significant = ('*',i)
-                elif less_significant[0] not in ['|','.','*']:
+                elif char == '?' and less_significant[0] not in ['|','.','*','?']:
+                    less_significant = ('?',i)
+                elif less_significant[0] not in ['|','.','*','?']:
                     less_significant = (char,i)
 
         return less_significant
@@ -74,7 +78,6 @@ class RegularExpression:
         if len(self._string) > 1:
             left = self._string[:symbol[1]]
             right = self._string[symbol[1]+1:]
-            # print(symbol, left, right)
 
             left = RegularExpression(left)._get_de_simone_tree()
             right = RegularExpression(right)._get_de_simone_tree()
@@ -83,6 +86,8 @@ class RegularExpression:
                 node = DeSimoneAlternation(left,right)
             elif symbol[0] == '*':
                 node = DeSimoneRepetition(left)
+            elif symbol[0] == '?':
+                node = DeSimoneOption(left)
             elif symbol[0] == '.':
                 node = DeSimoneConcatenation(left,right)
 
@@ -112,11 +117,18 @@ class RegularExpression:
 
         for state in table:
 
+            for abr in table:
+                print('###', abr)
+                print('')
+            print('')
+            print('')
+            print('')
+
             # we're looping through the states already on the table, these are the states we're certain will be needed
             # we'll be analyzing their composition and decide if a new state is needed
 
             for node in state['composition']:
-                print(state['state'], node)
+                ### print(state['state'], node)
 
                 # looking at each node on the composition of a state,
                 # if we find lambda this state is final, so we mark it as so
@@ -134,7 +146,7 @@ class RegularExpression:
                 # and if we already have a transition through this node symbol we then unite this node's thread back
                 # with the supposed new state composition
                 else:
-                    state['transitions'][node._symbol]['composition'] |= node._thread_back()
+                    state['transitions'][node._symbol]['composition'] |= node._thread_back().up()
 
             # at this point we have supposed new states on this state transitions
             # we need to analyze if their compositions aren't identical to a state's composition already on the table
@@ -191,7 +203,12 @@ class DeSimoneNode:
     def __str__(self):
         return '{%s[%s]%s}' % (self._left, self._symbol,self._right)
 
-    def down(self):
+    def down(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
         return {self}
 
     def _thread_back(self):
@@ -204,35 +221,118 @@ class DeSimoneNode:
 
 class DeSimoneLambda:
     _symbol = 'Lambda'
-    def up():
+    def up(seenUp = set(),seenDown = set()):
         return {DeSimoneLambda}
 
 class DeSimoneAlternation(DeSimoneNode):
     def __init__(self, left, right):
         DeSimoneNode.__init__(self,'|',left,right)
 
-    def down(self):
-        return self._left.down() | self._right.down()
+    def down(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
+        if(self not in seenDown):
+            seenDown |= {self}
+            return self._left.down(seenUp, seenDown) | self._right.down(seenUp, seenDown)
+        else:
+            return set()
 
-    def up(self):
-        return self._thread_back().up()
+    def up(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
+        if(self not in seenUp):
+            seenUp |= {self}
+            return self._thread_back().up(seenUp,seenDown)
+        else:
+            return set()
 
 class DeSimoneRepetition(DeSimoneNode):
     def __init__(self, left):
         DeSimoneNode.__init__(self,'*',left)
 
-    def down(self):
-        return self._left.down() | self._thread_back().up()
+    def down(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
+        if(self not in seenDown):
+            seenDown |= {self}
+            return self._left.down(seenUp,seenDown) | self._thread_back().up(seenUp,seenDown)
+        else:
+            return set()
 
-    def up(self):
-        return self.down()
+    def up(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
+        if(self not in seenUp):
+            seenUp |= {self}
+            return self._left.down(seenUp,seenDown) | self._thread_back().up(seenUp,seenDown)
+        else:
+            return set()
+
+class DeSimoneOption(DeSimoneNode):
+    def __init__(self, left):
+        DeSimoneNode.__init__(self,'?',left)
+
+    def down(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
+        if(self not in seenDown):
+            seenDown |= {self}
+            return self._left.down(seenUp, seenDown) | self._thread_back().up(seenUp, seenDown)
+        else:
+            return set()
+
+    def up(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
+        if(self not in seenUp):
+            seenUp |= {self}
+            return self._thread_back().up(seenUp, seenDown)
+        else:
+            return set()
 
 class DeSimoneConcatenation(DeSimoneNode):
     def __init__(self,left,right):
         DeSimoneNode.__init__(self,'.',left,right)
 
-    def down(self):
-        return self._left.down()
+    def down(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
+        if(self not in seenDown):
+            seenDown |= {self}
+            return self._left.down(seenUp, seenDown)
+        else:
+            return set()
 
-    def up(self):
-        return self._right.down()
+    def up(self,seenUp = None,seenDown = None):
+        if seenUp is None:
+            seenUp = set()
+        if seenDown is None:
+            seenDown = set()
+            
+        print(seenUp, seenDown)
+        if(self not in seenUp):
+            seenUp |= {self}
+            return self._right.down(seenUp, seenDown)
+        else:
+            return set()
