@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QDialog
+from PyQt5.QtWidgets import *
 from main_ui import Ui_Form
 
 from regular_expression import RegularExpression
@@ -13,13 +13,20 @@ class MainInit(QDialog):
 		self.ui.setupUi(self)
 
 		# Connect up the buttons.
-		self.ui.regex_to_fa_btn.clicked.connect(self.convertTxtToFa)
+		self.ui.regex_to_fa_btn.clicked.connect(self.set_main_automaton_with_regex)
 
-	def convertTxtToFa(self):
-		r = RegularExpression(self.ui.regex_txt.text())
+	def fill_table_with_automaton(self, m):
+		print(m)
+
+	def set_main_automaton_with_regex(self):
+		m = self.get_automatom_from_regex_dialog()
+		self.fill_table_with_automaton(m)
+
+	def get_automatom_from_regex_dialog(self):
+		s = QInputDialog.getText(self,"Expressão Regular -> FA", "Digite a Expressão Regular a ser convertida")[0]
+		r = RegularExpression(s)
 		m = r.to_deterministic_finite_automaton()
-
-		self.ui.fa_table.setSpan(len(m._states),len(m._alphabet)+3)
+		return m
 
 app = QApplication(sys.argv)
 window = MainInit()

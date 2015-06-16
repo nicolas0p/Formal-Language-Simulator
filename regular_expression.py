@@ -323,7 +323,6 @@ class DeSimoneConcatenation(DeSimoneNode):
         if seenDown is None:
             seenDown = set()
 
-        print(seenUp, seenDown)
         if(self not in seenUp):
             seenUp |= {self}
             return self._right.down(seenUp, seenDown)
