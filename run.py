@@ -27,7 +27,7 @@ class GUI(QDialog):
 		self.ui.min_fa_a_btn.clicked.connect(self.min_fa_a_btn_clicked) # MINIMIZE SLOT A 				## DONE
 		self.ui.com_fa_a_btn.clicked.connect(self.com_fa_a_btn_clicked) # COMPLEMENT SLOT A 			## DONE
 
-		self.ui.int_fa_a_btn.clicked.connect(self.default_button_behavior) # INTERSECTION SLOT A
+		self.ui.int_fa_a_btn.clicked.connect(self.int_fa_a_btn_clicked) # INTERSECTION SLOT A           ## DONE
 
 		self.ui.det_fa_b_btn.clicked.connect(self.det_fa_b_btn_clicked) # DETERMINE SLOT B 				## DONE
 		self.ui.min_fa_b_btn.clicked.connect(self.min_fa_b_btn_clicked) # MINIMIZE SLOT B 				## DONE
@@ -87,6 +87,11 @@ class GUI(QDialog):
 		b = self._fa_b.complement()
 		self.set_fa_on_table(b, 'b')
 
+	def int_fa_a_btn_clicked(self):
+		# TODO: show error if nothing on _fa_a or _fa_b
+		a = self._fa_a.intersection(self._fa_b)
+		self.set_fa_on_table(a, 'a')
+
 	def set_fa_on_table(self, fa, table):
 		if table == 'a':
 			table = self.ui.fa_a_table
@@ -94,6 +99,8 @@ class GUI(QDialog):
 		elif table == 'b':
 			table = self.ui.fa_b_table
 			self._fa_b = fa
+
+		# fa.rename_states()
 
 		# table.setRowCount(7);
 		# table.setColumnCount(3);
