@@ -14,8 +14,8 @@ class GUI(QDialog):
 		self.ui.setupUi(self)
 
 		# Connect up the buttons.
-		self.ui.er_fa_a_btn.clicked.connect(self.er_fa_a_btn_clicked) # ER -> FA , SLOT A
-		self.ui.er_fa_b_btn.clicked.connect(self.er_fa_b_btn_clicked) # ER -> FA, SLOT B
+		self.ui.er_fa_a_btn.clicked.connect(self.er_fa_a_btn_clicked) # ER -> FA , SLOT A ## DONE
+		self.ui.er_fa_b_btn.clicked.connect(self.er_fa_b_btn_clicked) # ER -> FA, SLOT B ## DONE
 		self.ui.er_search_btn.clicked.connect(self.default_button_behavior) # SEARCH TEXT WITH ER
 
 		self.ui.er_equals_gr_btn.clicked.connect(self.default_button_behavior) # ER EQUIVALENCE GR
@@ -23,13 +23,13 @@ class GUI(QDialog):
 		self.ui.gr_fa_a_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT A
 		self.ui.gr_fa_b_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT B
 
-		self.ui.det_af_a_btn.clicked.connect(self.default_button_behavior) # DETERMINIZE SLOT A
+		self.ui.det_af_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A
 		self.ui.min_fa_a_btn.clicked.connect(self.default_button_behavior) # MINIMIZE SLOT A
 		self.ui.com_fa_a_btn.clicked.connect(self.default_button_behavior) # COMPLEMENT SLOT A
 
 		self.ui.int_fa_a_btn.clicked.connect(self.default_button_behavior) # INTERSECTION SLOT A
 
-		self.ui.det_fa_b_btn.clicked.connect(self.default_button_behavior) # DETERMINE SLOT B
+		self.ui.det_fa_b_btn.clicked.connect(self.det_fa_b_btn_clicked) # DETERMINE SLOT B
 		self.ui.min_fa_b_btn.clicked.connect(self.default_button_behavior) # MINIMIZE SLOT B
 		self.ui.com_fa_b_btn.clicked.connect(self.default_button_behavior) # COMPLEMENT SLOT B
 
@@ -56,6 +56,14 @@ class GUI(QDialog):
 		# TODO: store fa on sidelist
 
 		self.set_fa_on_table(fa,table)
+
+	def det_fa_a_btn_clicked(self):
+		self._fa_a.determinize()
+		self.set_fa_on_table(self._fa_a, 'a')
+
+	def det_fa_b_btn_clicked(self):
+		self._fa_b.determinize()
+		self.set_fa_on_table(self._fa_b, 'b')
 
 	def set_fa_on_table(self, fa, table):
 		if table == 'a':
