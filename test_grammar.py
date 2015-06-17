@@ -1,4 +1,5 @@
 import unittest
+import pdb
 from grammar import Grammar
 from grammar import Production
 from grammar import InitialSymbolNotInNonTerminalsSetException
@@ -20,14 +21,6 @@ class TestGrammar(unittest.TestCase):
     def test_add_production(self):
         self.grammar.add_production(Production("S", "aS"))
         self.assertEqual(1, self.grammar.productions_quantity())
-
-    def test_create_grammar_with_wrong_initial_symbol(self):
-        self.assertRaises(InitialSymbolNotInNonTerminalsSetException, Grammar, {'a'}, {'S'}, 'A')
-
-    def test_generate_in_1_step_1_production(self):
-        self.grammar.add_production(Production('S', 'aS'))
-        generated = self.grammar.generate()
-        self.assertEqual('aS', generated)
 
     def test_grammar_conversion_ndfa_fa_aaab(self):
         # S -> aS | b
@@ -107,3 +100,29 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(False,fa.recognize_sentence('babaaab'));
         self.assertEqual(False,fa.recognize_sentence('babababaabc'));
         self.assertEqual(False,fa.recognize_sentence('bababcabaab'));
+
+    def test_text_to_grammar(self):
+        #pdb.set_trace()
+        text = "S -> aA | a | bS\nA -> aS | bA | b"
+        grammar = Grammar.text_to_grammar(text)
+        fa = grammar.to_finite_automaton()
+
+        self.assertTrue(fa.recognize_sentence("babababbbbaa"))
+        self.assertFalse(fa.recognize_sentence("abbbbaabaabbba"))
+
+    def test_text_to_grammar_epsilon(self):
+        text = "S -> aA\nA -> aS | bB\nB->bB | &"
+        grammar = Grammar.text_to_grammar(text)
+        fa = grammar.to_finite_automaton()
+
+        self.assertTrue(fa.recognize_sentence("aaaaabbb"))
+        self.assertFalse(fa.recognize_sentence("aaaabbb"))
+
+    def test_text_to_grammar_epsilon_2(self):
+        text = "S -> aS | a | bS | b"
+        grammar = Grammar.text_to_grammar(text)
+        fa = grammar.to_finite_automaton()
+
+        self.assertTrue(fa.recognize_sentence("abbabaaababbabab"))
+        self.assertFalse(fa.recognize_sentence("babbababcabab"))
+

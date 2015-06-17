@@ -4,7 +4,7 @@ from finite_automaton import FiniteAutomaton
 
 class Grammar():
 
-    def __init__(self, terminals = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't'}, nonterminals = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'}, initial_symbol = 'S'):
+    def __init__(self, terminals = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', '&'}, nonterminals = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'}, initial_symbol = 'S'):
         self._productions = set()
         self._terminals = terminals
         self._nonterminals = nonterminals
@@ -16,10 +16,15 @@ class Grammar():
         return copy.deepcopy(self._productions)
 
     def add_production(self, production):
+        if production.left() not in self._nonterminals:
+            raise Exception("Left side of production not a nonterminal")
+        terminal = production.right()[0] in self._terminals
+        nonterminal = True
+        if len(production.right()) == 2:
+            nonterminal = production.right()[1] in self._nonterminals
+        if not terminal or not nonterminal:
+            raise Exception("Right side is not regular")
         self._productions.add(production)
-
-    def generate(self, sentencial_form = 'S'):
-        pass
 
     def productions_quantity(self):
         return len(self._productions)
@@ -115,11 +120,28 @@ class Grammar():
         return string
 
 
+    @staticmethod
+    def text_to_grammar(text):
+        divider = '|'
+        grammar = Grammar()
+        for line in [a for a in text.split('\n') if a is not ""]:
+            left = line.split('->')[0].strip()
+            right = line.split('->')[1]
+            right = [a.strip() for a in right.split(divider)]
+            for symbol in right:
+                production = Production(left, symbol)
+                grammar.add_production(production)
+        return grammar
+
+
 class Production():
 
     def __init__(self, left_side, right_side):
         self._left = left_side
         self._right = right_side
+
+    def __repr__(self):
+        return str(self._left + "->" + self._right)
 
     def left(self):
         return self._left
