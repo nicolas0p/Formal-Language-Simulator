@@ -31,7 +31,7 @@ class FiniteAutomaton():
                 self._transitions[state][letter] = set()
 
     def insert_state(self, state):
-        """Inserir estado
+        """Insere estado
         @param state Estado a ser adicionado
         """
         self._states.add(state)
@@ -40,7 +40,7 @@ class FiniteAutomaton():
             self._transitions[state][letter] = set()
 
     def rename_states(self):
-        """Adequar o nome dos estados ao requisito
+        """Adequa o nome dos estados ao requisito.
         O requisito é que o nome de cada estado seja uma letra maiúscula
         """
         states = list(self._states)
@@ -75,7 +75,7 @@ class FiniteAutomaton():
         return False
 
     def insert_transition(self, source, letter, destiny):
-        """Inseri uma transição no autômato
+        """Insere uma transição no autômato
         @param source Estado de onde a transição parte
         @param letter Letra pela qual a transição vai ocorrer
         @param destiny Estado para onde a transição chega
@@ -89,7 +89,7 @@ class FiniteAutomaton():
         self._transitions[source][letter].add(destiny)
 
     def remove_transition(self, source, letter, destiny):
-        """Remove uma transição do autômato
+        """Remove uma transição do autômato.
         Se a transição não existe, nada é feito
         @param source Estado de onde a transição a ser retirada parte
         @param letter Letra por onde a transição a ser retirada ocorre
@@ -113,14 +113,14 @@ class FiniteAutomaton():
             return False
 
     def recognize_sentence(self, sentence):
-        """Reconhecimento de sentença
+        """Faz o reconhecimento, ou não, da sentença
         @param sentence Sentença a ser testada
         @return Se a sentença é reconhecida ou não pelo autômato
         """
         return self._recognize_sentence(sentence, self._initial_state)
 
     def _recognize_sentence(self, sentence, actual_state):
-        """Método recursivo de reconhecimento de sentença
+        """Método recursivo de reconhecimento de sentença.
         Representa o estado que o autômato está e o fragmento de sentença que ele ainda não reconheceu
         @param sentence Sequência de caracteres a ser testada
         @param actual_state Estado atual do reconhecimento
@@ -139,14 +139,14 @@ class FiniteAutomaton():
         return False
 
     def remove_unreachable_states(self):
-        """Remove de estados inalcançáveis
+        """Remove estados inalcançáveis
         """
         reachable = self.find_reachable()
         for state in self._states - reachable:
             self.remove_state(state)
 
     def remove_state(self, remove_state):
-        """Remove um estado do autômato
+        """Remove um estado do autômato.
         Remove também as transições que partem e que chegam neste estado
         @param remove_state Estado a ser removido
         """
@@ -245,7 +245,7 @@ class FiniteAutomaton():
         return automaton
 
     def complement(self):
-        """Faz o complemento do autômato
+        """Faz o complemento do autômato.
         Se o autômato for não determinístico, ele é determinizado antes de se fazer o complemento
         @return O complemente do autômato atual
         """
@@ -342,7 +342,7 @@ class FiniteAutomaton():
         self._transitions = transitions
 
     def is_empty(self):
-        """
+        """Detecta se a linguagem reconhecida pelo autômato é a linguagem vazia
         @return Se a linguagem reconhecida pelo autômato é a linguagem vazia
         """
         return self._initial_state in self._find_dead_states()
@@ -356,6 +356,9 @@ class FiniteAutomaton():
         return automaton
 
     def __repr__(self):
+        """Gera uma representação imprimível do autômato
+        @return String que representa o autômato
+        """
         alp = str(self._alphabet)
         states = str(self._states)
         trans = str(self._transitions)
@@ -409,7 +412,7 @@ class FiniteAutomaton():
         return equivalence_classes
 
     def _find_equivalent_states(self, clas, old):
-        """Gera dois (ou um) conjunto de estados a partir de uma classe da iteração anterior
+        """Gera dois (ou um) conjunto de estados a partir de uma classe da iteração anterior.
         Uma das classes representa os estados da classe anterior que são equivalentes, e a outra representa os estados que não são equivalentes com os estados do outro conjunto
         @param clas Conjunto de estados que representa a classe de equivalencia a ser analisada
         @param old Lista dos conjuntos que representam as classes de equivalência da iteração anterior
