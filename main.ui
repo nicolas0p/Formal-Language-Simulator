@@ -168,10 +168,17 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <widget class="QTableView" name="fa_b_table"/>
+           <widget class="QTableWidget" name="fa_b_table"/>
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="2">
+             <widget class="QPushButton" name="com_fa_b_btn">
+              <property name="text">
+               <string>Complemento</string>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="1">
              <widget class="QPushButton" name="min_fa_b_btn">
               <property name="text">
@@ -183,13 +190,6 @@
              <widget class="QPushButton" name="det_fa_b_btn">
               <property name="text">
                <string>Determinizar</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="com_fa_b_btn">
-              <property name="text">
-               <string>Complemento</string>
               </property>
              </widget>
             </item>
@@ -273,7 +273,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <widget class="QListView" name="fa_list"/>
+           <widget class="QListWidget" name="listWidget"/>
           </item>
           <item>
            <widget class="QPushButton" name="fa_list_a_btn">
