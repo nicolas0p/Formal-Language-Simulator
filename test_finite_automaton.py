@@ -461,3 +461,17 @@ class TestFiniteAutomaton(unittest.TestCase):
         self.assertTrue(automaton.recognize_sentence("aaaaabbbbbbbb"))
         self.assertFalse(automaton.recognize_sentence("aaaabbb"))
 
+    def test_change_state_name(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        evena = FiniteAutomaton({q0, q1}, {'a', 'b'}, q0, {q0})
+        evena.insert_transition(q0, 'b', q0)
+        evena.insert_transition(q0, 'a', q1)
+        evena.insert_transition(q1, 'b', q1)
+        evena.insert_transition(q1, 'a', q0)
+
+        evena._change_state_name(q0, "q2")
+
+        self.assertTrue(evena.recognize_sentence("bbabaabba"))
+        self.assertTrue(evena.recognize_sentence("aaaa"))
+        self.assertFalse(evena.recognize_sentence("abbabaabbab"))

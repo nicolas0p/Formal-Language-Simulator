@@ -58,8 +58,6 @@ class FiniteAutomaton():
             return False
 
     def recognize_sentence(self, sentence):
-        #if not self.is_nondeterministic():
-            #return self._recognize_sentence_deterministic(sentence)
         return self._recognize_sentence_nondeterministic(sentence, self._initial_state)
 
     def _recognize_sentence_nondeterministic(self, sentence, actual_state):
@@ -75,15 +73,6 @@ class FiniteAutomaton():
             if self._recognize_sentence_nondeterministic(sentence, state):
                 return True
         return False
-
-    def _recognize_sentence_deterministic(self, sentence):
-        actual_state = self._initial_state
-        for letter in sentence:
-            if letter in self._alphabet and len(self._transitions[actual_state][letter]) > 0:
-                actual_state = next(iter(self._transitions[actual_state][letter]))
-            else:
-                return False
-        return actual_state in self._final_states
 
     def remove_unreachable_states(self):
         reachable = self.find_reachable()
@@ -349,6 +338,24 @@ class FiniteAutomaton():
 
     def is_equal(self, other):
         return (self - other).is_empty() and (other - self).is_empty()
+
+    def _change_state_name(self, target, new_name):
+        self._states.remove(target)
+        new_state = State(new_name)
+        self._states.add(new_state)
+        self._transitions[new_state] = self._transitions[target]
+        del self._transitions[target]
+        for state in self._states:
+            for letter in self._alphabet:
+                through_transitions = self._transitions[state][letter]
+                if target in through_transitions:
+                    through_transitions.remove(target)
+                    through_transitions.add(new_state)
+        if target in self._final_states:
+            self._final_states.remove(target)
+            self._final_states.add(new_state)
+        if self._initial_state == target:
+            self._initial_state = new_state
 
 class State():
 
