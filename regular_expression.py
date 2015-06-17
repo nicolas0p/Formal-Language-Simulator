@@ -2,9 +2,9 @@ from finite_automaton import FiniteAutomaton
 from finite_automaton import State
 
 class RegularExpression:
-    def __init__(self, string, terminals = {'0','1','2','3','4','5','6','7','8','9','a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't'}):
+    def __init__(self, string):
         self._string = string
-        self._terminals = terminals
+        self._terminals = {symbol for symbol in string if symbol not in "()|+?.*"}
         self._normalize()
 
     # add unseen concatenations
@@ -117,13 +117,6 @@ class RegularExpression:
 
         for state in table:
 
-            for abr in table:
-                print('###', abr)
-                print('')
-            print('')
-            print('')
-            print('')
-
             # we're looping through the states already on the table, these are the states we're certain will be needed
             # we'll be analyzing their composition and decide if a new state is needed
 
@@ -208,7 +201,7 @@ class DeSimoneNode:
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
+
         return {self}
 
     def _thread_back(self):
@@ -233,7 +226,7 @@ class DeSimoneAlternation(DeSimoneNode):
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
+
         if(self not in seenDown):
             seenDown |= {self}
             return self._left.down(seenUp, seenDown) | self._right.down(seenUp, seenDown)
@@ -245,7 +238,7 @@ class DeSimoneAlternation(DeSimoneNode):
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
+
         if(self not in seenUp):
             seenUp |= {self}
             return self._thread_back().up(seenUp,seenDown)
@@ -261,7 +254,7 @@ class DeSimoneRepetition(DeSimoneNode):
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
+
         if(self not in seenDown):
             seenDown |= {self}
             return self._left.down(seenUp,seenDown) | self._thread_back().up(seenUp,seenDown)
@@ -273,7 +266,7 @@ class DeSimoneRepetition(DeSimoneNode):
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
+
         if(self not in seenUp):
             seenUp |= {self}
             return self._left.down(seenUp,seenDown) | self._thread_back().up(seenUp,seenDown)
@@ -289,7 +282,7 @@ class DeSimoneOption(DeSimoneNode):
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
+
         if(self not in seenDown):
             seenDown |= {self}
             return self._left.down(seenUp, seenDown) | self._thread_back().up(seenUp, seenDown)
@@ -301,7 +294,7 @@ class DeSimoneOption(DeSimoneNode):
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
+
         if(self not in seenUp):
             seenUp |= {self}
             return self._thread_back().up(seenUp, seenDown)
@@ -317,7 +310,7 @@ class DeSimoneConcatenation(DeSimoneNode):
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
+
         if(self not in seenDown):
             seenDown |= {self}
             return self._left.down(seenUp, seenDown)
@@ -329,8 +322,7 @@ class DeSimoneConcatenation(DeSimoneNode):
             seenUp = set()
         if seenDown is None:
             seenDown = set()
-            
-        print(seenUp, seenDown)
+
         if(self not in seenUp):
             seenUp |= {self}
             return self._right.down(seenUp, seenDown)
