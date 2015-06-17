@@ -1,9 +1,21 @@
 import copy
 import string
+"""
+@package Pacote contém autômato finito e estados
+"""
 
 class FiniteAutomaton():
+    """Classe que representa o autômato finito, determinístico ou não
+    """
 
     def __init__(self, states, alphabet, initial_state, final_states):
+        """Construtor de autômato finito
+        @param states Conjunto de estados do autômato
+        @param alphabet Conjunto de caracteres
+        @param initial_state Estado inicial
+        @param final_states Conjunto de estados finais
+        @throws Exception Se algum membro do alfabeto tem tamanho diferente de um
+        """
         self._states = states.copy()  #set of States
         self._alphabet = alphabet.copy() #set of letters
         self._transitions = {} #dict of State:{dict letter:set of States}
@@ -19,12 +31,18 @@ class FiniteAutomaton():
                 self._transitions[state][letter] = set()
 
     def insert_state(self, state):
+        """Inserir estado
+        @param state Estado a ser adicionado
+        """
         self._states.add(state)
         self._transitions[state] = {}
         for letter in self._alphabet:
             self._transitions[state][letter] = set()
 
     def rename_states(self):
+        """Adequar o nome dos estados ao requisito
+        O requisito é que o nome de cada estado seja uma letra maiúscula
+        """
         states = list(self._states)
         for i in range(0, len(self._states)):
             self._change_state_name(states[i], self._generate_name(i))
@@ -38,11 +56,15 @@ class FiniteAutomaton():
             result.insert(0, alphabet[position])
         return ''.join(result)
 
-
     def state_quantity(self):
+        """Retorna a quantidade de estados
+        @return A quantidade de estados
+        """
         return len(self._states)
 
     def is_nondeterministic(self):
+        """Retorna se o autômato é não determinístico
+        """
         for state in self._states:
             has_epsilon = self._transitions[state][self._epsilon] != set()
             for letter in self._alphabet:
@@ -53,6 +75,13 @@ class FiniteAutomaton():
         return False
 
     def insert_transition(self, source, letter, destiny):
+        """Inseri uma transição no autômato
+        @param source Estado de onde a transição parte
+        @param letter Letra pela qual a transição vai ocorrer
+        @param destiny Estado para onde a transição chega
+        @throws Exception Se algum dos estados não pertence ao conjunto de estados
+        @throws Exception Se a letra não pertence ao alfabeto
+        """
         if source not in self._states or destiny not in self._states:
             raise Exception("State does not belong to finite automaton")
         if letter not in self._alphabet:
@@ -60,40 +89,67 @@ class FiniteAutomaton():
         self._transitions[source][letter].add(destiny)
 
     def remove_transition(self, source, letter, destiny):
+        """Remove uma transição do autômato
+        Se a transição não existe, nada é feito
+        @param source Estado de onde a transição a ser retirada parte
+        @param letter Letra por onde a transição a ser retirada ocorre
+        @param destiny Estado para onde a transição a ser retirada chega
+        """
         try:
             self._transitions[source][letter].remove(destiny)
         except KeyError:
             return
 
     def has_transition(self, source, letter, destiny):
+        """Retorna se a transição indicada existe
+        @param source Estado de onde a transição parte
+        @param letter Letra pela qual a transição ocorre
+        @param destiny Estado para onde a transição chega
+        @return Se a transição existe
+        """
         try:
             return destiny in self._transitions[source][letter]
         except KeyError:
             return False
 
     def recognize_sentence(self, sentence):
-        return self._recognize_sentence_nondeterministic(sentence, self._initial_state)
+        """Reconhecimento de sentença
+        @param sentence Sentença a ser testada
+        @return Se a sentença é reconhecida ou não pelo autômato
+        """
+        return self._recognize_sentence(sentence, self._initial_state)
 
-    def _recognize_sentence_nondeterministic(self, sentence, actual_state):
+    def _recognize_sentence(self, sentence, actual_state):
+        """Método recursivo de reconhecimento de sentença
+        Representa o estado que o autômato está e o fragmento de sentença que ele ainda não reconheceu
+        @param sentence Sequência de caracteres a ser testada
+        @param actual_state Estado atual do reconhecimento
+        """
         if sentence is "":
             return actual_state in self._final_states
         if sentence[0] not in self._alphabet:
             return False
         through_epsilon = self._transitions[actual_state][self._epsilon]
         for state in self._transitions[actual_state][sentence[0]]:
-            if self._recognize_sentence_nondeterministic(sentence[1:], state):
+            if self._recognize_sentence(sentence[1:], state):
                 return True
         for state in through_epsilon:
-            if self._recognize_sentence_nondeterministic(sentence, state):
+            if self._recognize_sentence(sentence, state):
                 return True
         return False
 
     def remove_unreachable_states(self):
+        """Remove de estados inalcançáveis
+        """
         reachable = self.find_reachable()
         for state in self._states - reachable:
             self.remove_state(state)
 
     def remove_state(self, remove_state):
+        """Remove um estado do autômato
+        Remove também as transições que partem e que chegam neste estado
+        @param remove_state Estado a ser removido
+        """
         for state in self._states:
             transitions = self._transitions[state].copy()
             for letter in transitions:
@@ -103,6 +159,9 @@ class FiniteAutomaton():
         self._states.remove(remove_state)
 
     def find_reachable(self):
+        """Gera um conjunto com os estados alcançáveis
+        @return Conjunto de estados alcançáveis
+        """
         actual_size = 0
         reachable_state = {self._initial_state}
         while len(reachable_state) != actual_size:
@@ -118,11 +177,16 @@ class FiniteAutomaton():
         return reachable_state
 
     def remove_dead_states(self):
+        """Remove estados mortos
+        """
         dead = self._find_dead_states()
         for state in dead:
             self.remove_state(state)
 
     def _find_dead_states(self):
+        """Gera o conjunto de estados mortos
+        @return Conjunto de estados mortos
+        """
         alive = self._final_states.copy()
         old = set()
         while alive != old:
@@ -134,6 +198,10 @@ class FiniteAutomaton():
         return self._states - alive
 
     def union(self, other):
+        """União de autômatos
+        @param other Autômato que se deseja unir
+        @return Autômato que representa a união do autômato atual com other
+        """
         old_transitions = [self._transitions, other._transitions]
         states = set()
         transitions = {}
@@ -177,6 +245,10 @@ class FiniteAutomaton():
         return automaton
 
     def complement(self):
+        """Faz o complemento do autômato
+        Se o autômato for não determinístico, ele é determinizado antes de se fazer o complemento
+        @return O complemente do autômato atual
+        """
         automaton = self.copy()
         automaton.determinize()
         automaton._add_error_state()
@@ -185,6 +257,9 @@ class FiniteAutomaton():
         return automaton
 
     def _add_error_state(self):
+        """Adiciona o estado de erro se o autômato contém transições não definidas
+        @return O estado de erro, se ele foi adicionado
+        """
         if self.is_completely_defined():
             return
         error_state = State("fi")
@@ -198,6 +273,9 @@ class FiniteAutomaton():
         return error_state
 
     def intersection(self, other):
+        """Interseção de autômatos
+        @return O autômato que representa a interseção entre o autômato atual com other
+        """
         complement1 = self.complement()
         complement2 = other.complement()
         union = complement1.union(complement2)
@@ -205,6 +283,10 @@ class FiniteAutomaton():
         return final
 
     def _epsilon_closure(self, state):
+        """Gera o epsilon fecho de um dado estado
+        @param state Estado que se deseja obter o epsilon fecho
+        @return conjunto de estados no epsilon fecho do estado
+        """
         closure = {state}
         old = set()
         while old != closure:
@@ -214,6 +296,8 @@ class FiniteAutomaton():
         return closure
 
     def determinize(self):
+        """Determinização e remoção de epsilon transições de autômato
+        """
         if not self.is_nondeterministic():
             return
         states = set() #will contain the State objects
@@ -258,9 +342,15 @@ class FiniteAutomaton():
         self._transitions = transitions
 
     def is_empty(self):
+        """
+        @return Se a linguagem reconhecida pelo autômato é a linguagem vazia
+        """
         return self._initial_state in self._find_dead_states()
 
     def copy(self):
+        """Faz uma cópia de autômato
+        @return cópia do autômato atual
+        """
         automaton = FiniteAutomaton(self._states.copy(), self._alphabet.copy(), self._initial_state.copy(), self._final_states.copy())
         automaton._transitions = copy.deepcopy(self._transitions)
         return automaton
@@ -274,6 +364,8 @@ class FiniteAutomaton():
         return str(alp + states + trans + initial + finals)
 
     def remove_equivalent_states(self):
+        """Remove os estados equivalentes
+        """
         self.determinize()
         self._add_error_state()
         equivalence_classes = self._find_equivalence_classes()
@@ -304,6 +396,9 @@ class FiniteAutomaton():
         self.remove_dead_states()
 
     def _find_equivalence_classes(self):
+        """Encontra as classes de equivalência
+        @return Lista de conjuntos de estados, cada um desses conjuntos contêm estados equivalentes
+        """
         equivalence_classes = [self._final_states.copy(), self._states - self._final_states]
         old = []
         while equivalence_classes != old:
@@ -314,6 +409,11 @@ class FiniteAutomaton():
         return equivalence_classes
 
     def _find_equivalent_states(self, clas, old):
+        """Gera dois (ou um) conjunto de estados a partir de uma classe da iteração anterior
+        Uma das classes representa os estados da classe anterior que são equivalentes, e a outra representa os estados que não são equivalentes com os estados do outro conjunto
+        @param clas Conjunto de estados que representa a classe de equivalencia a ser analisada
+        @param old Lista dos conjuntos que representam as classes de equivalência da iteração anterior
+        """
         equivalence_classes = []
         state1 = next(iter(clas))
         not_equal = set()
@@ -331,6 +431,12 @@ class FiniteAutomaton():
         return equivalence_classes
 
     def _are_equivalent_states(self, state1, state2, equivalence_classes):
+        """Determina se dois estados são equivalentes ou não
+        @param state1 Estado a ser comparado
+        @param state2 Outro estado a ser comparado
+        @param equivalence_classes Lista de conjuntos que representa as classes de equivalência da iteração anterior
+        @return Se state 1 é equivalente a state2
+        """
         for letter in self._alphabet - {self._epsilon}:
             tran_state1 = next(iter(self._transitions[state1][letter]))
             tran_state2 = next(iter(self._transitions[state2][letter]))
@@ -340,6 +446,9 @@ class FiniteAutomaton():
         return True
 
     def is_completely_defined(self):
+        """Determina se o autômato atual é completamente definido,ou seja, se não possui transições não definidas
+        @return Se o autômato é completamente definido
+        """
         for letter in self._alphabet - {self._epsilon}:
             for state in self._states:
                 if self._transitions[state][letter] == set():
@@ -347,18 +456,30 @@ class FiniteAutomaton():
         return True
 
     def minimize(self):
+        """Minimiza o autômato atual
+        """
         self.determinize()
         self.remove_unreachable_states()
         self.remove_dead_states()
         self.remove_equivalent_states()
 
     def __sub__(self, other):
+        """Subtrai dois autômatos
+        @param other Autômato que vai subtrair o autômato atual
+        """
         return self.intersection(other.complement())
 
     def is_equal(self, other):
+        """Determina se dois autômatos são equivalentes, ou seja, se eles reconhecem linguagens iguais
+        @param other Autômato a ser comparado com o atual
+        """
         return (self - other).is_empty() and (other - self).is_empty()
 
     def _change_state_name(self, target, new_name):
+        """Muda o nome de um estado, atualizando todas as transições
+        @param target Estado que terá seu nome mudado
+        @param new_name Novo nome do estado target
+        """
         self._states.remove(target)
         new_state = State(new_name)
         self._states.add(new_state)
@@ -377,8 +498,13 @@ class FiniteAutomaton():
             self._initial_state = new_state
 
 class State():
+    """Classe que representa um estado de um autômato finito
+    """
 
     def __init__(self, name):
+        """Construtor de estado
+        @param name Nome do estado
+        """
         self._name = name
 
     def __hash__(self):
@@ -388,6 +514,9 @@ class State():
         return State(self._name)
 
     def __eq__(self, other):
+        """Comparador de estados, se dois estados tem o mesmo nome, eles são o mesmo estado
+        @param other Outro estado a ser comparado
+        """
         return self._name == other._name
 
     def __lt__(self, other):
