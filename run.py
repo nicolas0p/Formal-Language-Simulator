@@ -23,7 +23,7 @@ class GUI(QDialog):
 		self.ui.gr_fa_a_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT A
 		self.ui.gr_fa_b_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT B
 
-		self.ui.det_af_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A 			## DONE
+		self.ui.det_fa_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A 			## DONE
 		self.ui.min_fa_a_btn.clicked.connect(self.min_fa_a_btn_clicked) # MINIMIZE SLOT A 				## DONE
 		self.ui.com_fa_a_btn.clicked.connect(self.com_fa_a_btn_clicked) # COMPLEMENT SLOT A 			## DONE
 
@@ -104,6 +104,9 @@ class GUI(QDialog):
 
 		states = list(fa._states)
 		alphabet = list(fa._alphabet)
+
+		if not fa.is_nondeterministic():
+			alphabet.remove('&')
 
 		table.setRowCount(len(states))
 		table.setColumnCount(len(alphabet))

@@ -133,7 +133,7 @@
              </widget>
             </item>
             <item row="0" column="0">
-             <widget class="QPushButton" name="det_af_a_btn">
+             <widget class="QPushButton" name="det_fa_a_btn">
               <property name="text">
                <string>Determinizar</string>
               </property>
