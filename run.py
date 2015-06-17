@@ -16,12 +16,12 @@ class GUI(QDialog):
 		# Connect up the buttons.
 		self.ui.er_fa_a_btn.clicked.connect(self.er_fa_a_btn_clicked) # ER -> FA , SLOT A 				## DONE
 		self.ui.er_fa_b_btn.clicked.connect(self.er_fa_b_btn_clicked) # ER -> FA, SLOT B 				## DONE
-		self.ui.er_search_btn.clicked.connect(self.default_button_behavior) # SEARCH TEXT WITH ER
+		self.ui.er_search_btn.clicked.connect(self.default_button_behavior) # SEARCH TEXT WITH ER		#
 
-		self.ui.er_equals_gr_btn.clicked.connect(self.default_button_behavior) # ER EQUIVALENCE GR
+		self.ui.er_equals_gr_btn.clicked.connect(self.default_button_behavior) # ER EQUIVALENCE GR		#
 
-		self.ui.gr_fa_a_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT A
-		self.ui.gr_fa_b_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT B
+		self.ui.gr_fa_a_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT A			#
+		self.ui.gr_fa_b_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT B			#
 
 		self.ui.det_fa_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A 			## DONE
 		self.ui.min_fa_a_btn.clicked.connect(self.min_fa_a_btn_clicked) # MINIMIZE SLOT A 				## DONE
@@ -33,8 +33,8 @@ class GUI(QDialog):
 		self.ui.min_fa_b_btn.clicked.connect(self.min_fa_b_btn_clicked) # MINIMIZE SLOT B 				## DONE
 		self.ui.com_fa_b_btn.clicked.connect(self.com_fa_b_btn_clicked) # COMPLEMENT SLOT B 			## DONE
 
-		self.ui.fa_list_a_btn.clicked.connect(self.fa_list_a_btn_clicked) # ITEM ON LIST TO SLOT A
-		self.ui.fa_list_b_btn.clicked.connect(self.fa_list_b_btn_clicked) # ITEM ON LIST TO SLOT B
+		self.ui.fa_list_a_btn.clicked.connect(self.fa_list_a_btn_clicked) # ITEM ON LIST TO SLOT A		## DONE
+		self.ui.fa_list_b_btn.clicked.connect(self.fa_list_b_btn_clicked) # ITEM ON LIST TO SLOT B		## DONE
 
 		self._fa_a = None
 		self._fa_b = None
@@ -111,9 +111,13 @@ class GUI(QDialog):
 		self.set_fa_on_table(fa, table)
 
 	def int_fa_a_btn_clicked(self):
-		# TODO: show error if nothing on _fa_a or _fa_b
-		a = self._fa_a.intersection(self._fa_b)
-		self.set_fa_on_table(a, 'a')
+		if self._fa_a == None or self._fa_b == None:
+			print("Não há autômato em algum slot")
+			return
+
+		fa = self._fa_a.intersection(self._fa_b)
+		self.add_fa_on_list('Intersecção entre AFs', fa)
+		self.set_fa_on_table(fa, 'a')
 
 	def fa_list_a_btn_clicked(self):
 		fa = self.get_selected_fa_from_list()
