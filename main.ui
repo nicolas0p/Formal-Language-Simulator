@@ -111,7 +111,17 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QTableWidget" name="fa_a_table"/>
+           <widget class="QTableWidget" name="fa_a_table">
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="gridStyle">
+             <enum>Qt::DashLine</enum>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout_4">
