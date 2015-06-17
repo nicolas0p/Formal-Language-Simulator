@@ -33,8 +33,12 @@ class GUI(QDialog):
 		self.ui.min_fa_b_btn.clicked.connect(self.min_fa_b_btn_clicked) # MINIMIZE SLOT B 				## DONE
 		self.ui.com_fa_b_btn.clicked.connect(self.com_fa_b_btn_clicked) # COMPLEMENT SLOT B 			## DONE
 
-		self.ui.fa_list_a_btn.clicked.connect(self.default_button_behavior) # ITEM ON LIST TO SLOT A
+		self.ui.fa_list_a_btn.clicked.connect(self.fa_list_a_btn_clicked) # ITEM ON LIST TO SLOT A
 		self.ui.fa_list_b_btn.clicked.connect(self.default_button_behavior) # ITEM ON LIST TO SLOT B
+
+		self._fa_a = None
+		self._fa_b = None
+		self._fa_list = {}
 
 	def default_button_behavior(self):
 		print("Not implemented!!!")
@@ -92,6 +96,15 @@ class GUI(QDialog):
 		a = self._fa_a.intersection(self._fa_b)
 		self.set_fa_on_table(a, 'a')
 
+	def fa_list_a_btn_clicked(self):
+		self.add_fa_on_list("123",0)
+
+	def add_fa_on_list(self, name, fa):
+		# self.ui.listWidget.addItem("123 banana!")
+		self.ui.listWidget.addItem(name);
+		self._fa_list[self.ui.listWidget.item(0).__str__()] = fa
+		print(self._fa_list)
+
 	def set_fa_on_table(self, fa, table):
 		if table == 'a':
 			table = self.ui.fa_a_table
@@ -100,7 +113,8 @@ class GUI(QDialog):
 			table = self.ui.fa_b_table
 			self._fa_b = fa
 
-		# fa.rename_states()
+		fa = fa.copy()
+		fa.rename_states()
 
 		# table.setRowCount(7);
 		# table.setColumnCount(3);
