@@ -4,6 +4,7 @@ from PyQt5.QtGui import *
 from ui_main import Ui_Form
 
 from regular_expression import RegularExpression
+from grammar import Grammar
 
 class GUI(QDialog):
 	def __init__(self):
@@ -16,12 +17,13 @@ class GUI(QDialog):
 		# Connect up the buttons.
 		self.ui.er_fa_a_btn.clicked.connect(self.er_fa_a_btn_clicked) # ER -> FA , SLOT A 				## DONE
 		self.ui.er_fa_b_btn.clicked.connect(self.er_fa_b_btn_clicked) # ER -> FA, SLOT B 				## DONE
+
 		self.ui.er_search_btn.clicked.connect(self.default_button_behavior) # SEARCH TEXT WITH ER		#
 
 		self.ui.er_equals_gr_btn.clicked.connect(self.default_button_behavior) # ER EQUIVALENCE GR		#
 
-		self.ui.gr_fa_a_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT A			#
-		self.ui.gr_fa_b_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT B			#
+		self.ui.gr_fa_a_btn.clicked.connect(self.gr_fa_a_btn_clicked) # GR -> FA, SLOT A				#
+		self.ui.gr_fa_b_btn.clicked.connect(self.gr_fa_b_btn_clicked) # GR -> FA, SLOT B				#
 
 		self.ui.det_fa_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A 			## DONE
 		self.ui.min_fa_a_btn.clicked.connect(self.min_fa_a_btn_clicked) # MINIMIZE SLOT A 				## DONE
@@ -51,15 +53,28 @@ class GUI(QDialog):
 
 	def er_fa_btn_clicked(self,table):
 		st = self.ui.er_text.toPlainText()
-
 		if st == '':
 			st = "(0*(1(01*0)*1)*0*)*"
 
 		fa = RegularExpression(st).to_deterministic_finite_automaton()
-
 		self.add_fa_on_list('ER => FA', fa)
-
 		self.set_fa_on_table(fa,table)
+
+	def gr_fa_a_btn_clicked(self):
+		self.gr_fa_btn_clicked('a')
+
+	def gr_fa_b_btn_clicked(self):
+		self.gr_fa_btn_clicked('b')
+
+	def gr_fa_btn_clicked(self, table):
+		st = self.ui.gr_text.toPlainText()
+		if st == '':
+			st = "S -> aS | a | bS | b"
+
+		gr = Grammar.text_to_grammar(st)
+		fa = gr.to_finite_automaton()
+		self.add_fa_on_list("GR => FA", fa)
+		self.set_fa_on_table(fa, table)
 
 	def det_fa_a_btn_clicked(self):
 		self.det_fa_btn_clicked(self._fa_a, 'a')

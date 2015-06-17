@@ -159,7 +159,7 @@ class Ui_Form(object):
         self.er_equals_gr_btn.setText(_translate("Form", "Verificar Equivalência entre ER e GR"))
         self.int_fa_a_btn.setText(_translate("Form", "Intersecção entre os AFs - Slot A"))
         self.groupBox_3.setTitle(_translate("Form", "Gramática Regular"))
-        self.gr_text.setPlaceholderText(_translate("Form", "S -> aS | b "))
+        self.gr_text.setPlaceholderText(_translate("Form", "S -> aS | a | bS | b"))
         self.gr_fa_a_btn.setText(_translate("Form", "GR p/ AF - Slot A"))
         self.gr_fa_b_btn.setText(_translate("Form", "GR p/ AF - Slot B"))
         self.groupBox_2.setTitle(_translate("Form", "Autômato Finito - Slot A"))
