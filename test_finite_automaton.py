@@ -497,3 +497,18 @@ class TestFiniteAutomaton(unittest.TestCase):
         amod4.insert_transition(q3, 'a', q0)
 
         self.assertFalse(evena.is_equal(amod4))
+
+    def test_intersection_disjoint_languages(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        evena = FiniteAutomaton({q0, q1}, {'a', 'b'}, q0, {q0})
+        evena.insert_transition(q0, 'b', q0)
+        evena.insert_transition(q0, 'a', q1)
+        evena.insert_transition(q1, 'b', q1)
+        evena.insert_transition(q1, 'a', q0)
+
+        empty = evena.intersection(evena.complement())
+
+        empty.minimize()
+
+        self.assertTrue(empty.is_empty())

@@ -345,7 +345,7 @@ class FiniteAutomaton():
         """Detecta se a linguagem reconhecida pelo autômato é a linguagem vazia
         @return Se a linguagem reconhecida pelo autômato é a linguagem vazia
         """
-        return self._initial_state in self._find_dead_states()
+        return self._initial_state not in (self._states - self._find_dead_states())
 
     def copy(self):
         """Faz uma cópia de autômato
@@ -369,6 +369,8 @@ class FiniteAutomaton():
     def remove_equivalent_states(self):
         """Remove os estados equivalentes
         """
+        if self._states == set():
+            return
         self.determinize()
         self._add_error_state()
         equivalence_classes = self._find_equivalence_classes()
