@@ -14,8 +14,8 @@ class GUI(QDialog):
 		self.ui.setupUi(self)
 
 		# Connect up the buttons.
-		self.ui.er_fa_a_btn.clicked.connect(self.er_fa_a_btn_clicked) # ER -> FA , SLOT A ## DONE
-		self.ui.er_fa_b_btn.clicked.connect(self.er_fa_b_btn_clicked) # ER -> FA, SLOT B ## DONE
+		self.ui.er_fa_a_btn.clicked.connect(self.er_fa_a_btn_clicked) # ER -> FA , SLOT A 				## DONE
+		self.ui.er_fa_b_btn.clicked.connect(self.er_fa_b_btn_clicked) # ER -> FA, SLOT B 				## DONE
 		self.ui.er_search_btn.clicked.connect(self.default_button_behavior) # SEARCH TEXT WITH ER
 
 		self.ui.er_equals_gr_btn.clicked.connect(self.default_button_behavior) # ER EQUIVALENCE GR
@@ -23,15 +23,15 @@ class GUI(QDialog):
 		self.ui.gr_fa_a_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT A
 		self.ui.gr_fa_b_btn.clicked.connect(self.default_button_behavior) # GR -> FA, SLOT B
 
-		self.ui.det_af_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A
-		self.ui.min_fa_a_btn.clicked.connect(self.default_button_behavior) # MINIMIZE SLOT A
-		self.ui.com_fa_a_btn.clicked.connect(self.default_button_behavior) # COMPLEMENT SLOT A
+		self.ui.det_af_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A 			## DONE
+		self.ui.min_fa_a_btn.clicked.connect(self.min_fa_a_btn_clicked) # MINIMIZE SLOT A 				## DONE
+		self.ui.com_fa_a_btn.clicked.connect(self.com_fa_a_btn_clicked) # COMPLEMENT SLOT A 			## DONE
 
 		self.ui.int_fa_a_btn.clicked.connect(self.default_button_behavior) # INTERSECTION SLOT A
 
-		self.ui.det_fa_b_btn.clicked.connect(self.det_fa_b_btn_clicked) # DETERMINE SLOT B
-		self.ui.min_fa_b_btn.clicked.connect(self.default_button_behavior) # MINIMIZE SLOT B
-		self.ui.com_fa_b_btn.clicked.connect(self.default_button_behavior) # COMPLEMENT SLOT B
+		self.ui.det_fa_b_btn.clicked.connect(self.det_fa_b_btn_clicked) # DETERMINE SLOT B 				## DONE
+		self.ui.min_fa_b_btn.clicked.connect(self.min_fa_b_btn_clicked) # MINIMIZE SLOT B 				## DONE
+		self.ui.com_fa_b_btn.clicked.connect(self.com_fa_b_btn_clicked) # COMPLEMENT SLOT B 			## DONE
 
 		self.ui.fa_list_a_btn.clicked.connect(self.default_button_behavior) # ITEM ON LIST TO SLOT A
 		self.ui.fa_list_b_btn.clicked.connect(self.default_button_behavior) # ITEM ON LIST TO SLOT B
@@ -58,12 +58,34 @@ class GUI(QDialog):
 		self.set_fa_on_table(fa,table)
 
 	def det_fa_a_btn_clicked(self):
+		# TODO: show error if nothing on _fa_a
 		self._fa_a.determinize()
 		self.set_fa_on_table(self._fa_a, 'a')
 
 	def det_fa_b_btn_clicked(self):
+		# TODO: show error if nothing on _fa_b
 		self._fa_b.determinize()
 		self.set_fa_on_table(self._fa_b, 'b')
+
+	def min_fa_a_btn_clicked(self):
+		# TODO: show error if nothing on _fa_a
+		self._fa_a.minimize()
+		self.set_fa_on_table(self._fa_a, 'a')
+
+	def min_fa_b_btn_clicked(self):
+		# TODO: show error if nothing on _fa_b
+		self._fa_b.minimize()
+		self.set_fa_on_table(self._fa_b, 'b')
+
+	def com_fa_a_btn_clicked(self):
+		# TODO: show error if nothing on _fa_a
+		a = self._fa_a.complement()
+		self.set_fa_on_table(a, 'a')
+
+	def com_fa_b_btn_clicked(self):
+		# TODO: show error if nothing on _fa_b
+		b = self._fa_b.complement()
+		self.set_fa_on_table(b, 'b')
 
 	def set_fa_on_table(self, fa, table):
 		if table == 'a':
