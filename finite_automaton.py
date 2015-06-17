@@ -1,6 +1,5 @@
 import copy
-
-import pdb
+import string
 
 class FiniteAutomaton():
 
@@ -24,6 +23,21 @@ class FiniteAutomaton():
         self._transitions[state] = {}
         for letter in self._alphabet:
             self._transitions[state][letter] = set()
+
+    def rename_states(self):
+        states = list(self._states)
+        for i in range(0, len(self._states)):
+            self._change_state_name(states[i], self._generate_name(i))
+
+    def _generate_name(self, number):
+        alphabet = list(string.ascii_uppercase)
+        result = []
+        result.insert(1, alphabet[number % 26])
+        if number > 26:
+            position = number // 26
+            result.insert(0, alphabet[position])
+        return ''.join(result)
+
 
     def state_quantity(self):
         return len(self._states)
@@ -252,7 +266,12 @@ class FiniteAutomaton():
         return automaton
 
     def __repr__(self):
-        return str(self._alphabet) + str(self._states) + str(self._transitions) + str(self._initial_state)+ str(self._final_states)
+        alp = str(self._alphabet)
+        states = str(self._states)
+        trans = str(self._transitions)
+        initial = str(self._initial_state)
+        finals = str(self._final_states)
+        return str(alp + states + trans + initial + finals)
 
     def remove_equivalent_states(self):
         self.determinize()
