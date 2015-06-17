@@ -512,3 +512,22 @@ class TestFiniteAutomaton(unittest.TestCase):
         empty.minimize()
 
         self.assertTrue(empty.is_empty())
+
+    def test_minimize_empty_complement_automaton(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        evena = FiniteAutomaton({q0, q1}, {'a', 'b'}, q0, {q0})
+        evena.insert_transition(q0, 'b', q0)
+        evena.insert_transition(q0, 'a', q1)
+        evena.insert_transition(q1, 'b', q1)
+        evena.insert_transition(q1, 'a', q0)
+
+        complement = evena.complement()
+
+        intersection = evena.intersection(complement)
+
+        intersection = intersection.complement()
+
+        intersection.minimize()
+
+        self.assertFalse(intersection.is_empty())

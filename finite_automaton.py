@@ -250,6 +250,16 @@ class FiniteAutomaton():
         @return O complemente do autômato atual
         """
         automaton = self.copy()
+        if automaton.is_empty():
+            only_state = State('Z')
+            automaton._states = {only_state}
+            automaton._transitions = {only_state:{}}
+            automaton._initial_state = only_state
+            automaton._final_states = {only_state}
+            automaton._transitions[only_state][self._epsilon] = set()
+            for letter in self._alphabet - {self._epsilon}:
+                automaton._transitions[only_state][letter] = {only_state}
+            return automaton
         automaton.determinize()
         automaton._add_error_state()
         new_final_states = automaton._states - automaton._final_states
@@ -369,7 +379,7 @@ class FiniteAutomaton():
     def remove_equivalent_states(self):
         """Remove os estados equivalentes
         """
-        if self._states == set():
+        if self._states == set() or self._final_states == set() or self._states - self._final_states == set():
             return
         self.determinize()
         self._add_error_state()
