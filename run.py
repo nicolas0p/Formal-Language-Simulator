@@ -34,7 +34,7 @@ class GUI(QDialog):
 		self.ui.com_fa_b_btn.clicked.connect(self.com_fa_b_btn_clicked) # COMPLEMENT SLOT B 			## DONE
 
 		self.ui.fa_list_a_btn.clicked.connect(self.fa_list_a_btn_clicked) # ITEM ON LIST TO SLOT A
-		self.ui.fa_list_b_btn.clicked.connect(self.default_button_behavior) # ITEM ON LIST TO SLOT B
+		self.ui.fa_list_b_btn.clicked.connect(self.fa_list_b_btn_clicked) # ITEM ON LIST TO SLOT B
 
 		self._fa_a = None
 		self._fa_b = None
@@ -57,39 +57,58 @@ class GUI(QDialog):
 
 		fa = RegularExpression(st).to_deterministic_finite_automaton()
 
-		# TODO: store fa on sidelist
+		self.add_fa_on_list('ER => FA', fa)
 
 		self.set_fa_on_table(fa,table)
 
 	def det_fa_a_btn_clicked(self):
-		# TODO: show error if nothing on _fa_a
-		self._fa_a.determinize()
-		self.set_fa_on_table(self._fa_a, 'a')
+		self.det_fa_btn_clicked(self._fa_a, 'a')
 
 	def det_fa_b_btn_clicked(self):
-		# TODO: show error if nothing on _fa_b
-		self._fa_b.determinize()
-		self.set_fa_on_table(self._fa_b, 'b')
+		self.det_fa_btn_clicked(self._fa_b, 'b')
+
+	def det_fa_btn_clicked(self, fa, table):
+		if fa == None:
+			print("Não há autômato no Slot")
+			return
+
+		fa = fa.copy()
+
+		fa.determinize()
+		self.add_fa_on_list('Determinização - Slot %s'%(table.capitalize()), fa)
+		self.set_fa_on_table(fa, table)
 
 	def min_fa_a_btn_clicked(self):
-		# TODO: show error if nothing on _fa_a
-		self._fa_a.minimize()
-		self.set_fa_on_table(self._fa_a, 'a')
+		self.min_fa_btn_clicked(self._fa_a, 'a')
 
 	def min_fa_b_btn_clicked(self):
-		# TODO: show error if nothing on _fa_b
-		self._fa_b.minimize()
-		self.set_fa_on_table(self._fa_b, 'b')
+		self.min_fa_btn_clicked(self._fa_b, 'b')
+
+	def min_fa_btn_clicked(self, fa, table):
+		if fa == None:
+			print("Não há autômato no Slot")
+			return
+
+		fa = fa.copy()
+
+		fa.minimize()
+		self.add_fa_on_list('Minimização - Slot %s'%(table.capitalize()), fa)
+		self.set_fa_on_table(fa, table)
 
 	def com_fa_a_btn_clicked(self):
-		# TODO: show error if nothing on _fa_a
-		a = self._fa_a.complement()
-		self.set_fa_on_table(a, 'a')
+		self.com_fa_btn_clicked(self._fa_a, 'a')
 
 	def com_fa_b_btn_clicked(self):
-		# TODO: show error if nothing on _fa_b
-		b = self._fa_b.complement()
-		self.set_fa_on_table(b, 'b')
+		self.com_fa_btn_clicked(self._fa_b, 'b')
+
+	def com_fa_btn_clicked(self, fa, table):
+		if fa == None:
+			print("Não há autômato no Slot")
+			return
+
+		fa = fa.complement()
+		self.add_fa_on_list('Complemento - Slot %s'%(table.capitalize()), fa)
+		self.set_fa_on_table(fa, table)
 
 	def int_fa_a_btn_clicked(self):
 		# TODO: show error if nothing on _fa_a or _fa_b
@@ -97,13 +116,21 @@ class GUI(QDialog):
 		self.set_fa_on_table(a, 'a')
 
 	def fa_list_a_btn_clicked(self):
-		self.add_fa_on_list("123",0)
+		fa = self.get_selected_fa_from_list()
+		self.set_fa_on_table(fa, 'a')
+
+	def fa_list_b_btn_clicked(self):
+		fa = self.get_selected_fa_from_list()
+		self.set_fa_on_table(fa, 'b')
 
 	def add_fa_on_list(self, name, fa):
 		# self.ui.listWidget.addItem("123 banana!")
+		name = "#%d %s"%(self.ui.listWidget.count(),name)
 		self.ui.listWidget.addItem(name);
-		self._fa_list[self.ui.listWidget.item(0).__str__()] = fa
-		print(self._fa_list)
+		self._fa_list[name] = fa
+
+	def get_selected_fa_from_list(self):
+		return self._fa_list[self.ui.listWidget.currentItem().text()]
 
 	def set_fa_on_table(self, fa, table):
 		if table == 'a':
@@ -158,8 +185,6 @@ class GUI(QDialog):
 
 		table.resizeColumnsToContents()
 		table.resizeRowsToContents()
-
-
 
 app = QApplication(sys.argv)
 window = GUI()
