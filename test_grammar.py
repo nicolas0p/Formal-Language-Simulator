@@ -102,7 +102,6 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(False,fa.recognize_sentence('bababcabaab'));
 
     def test_text_to_grammar(self):
-        #pdb.set_trace()
         text = "S -> aA | a | bS\nA -> aS | bA | b"
         grammar = Grammar.text_to_grammar(text)
         fa = grammar.to_finite_automaton()

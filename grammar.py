@@ -124,13 +124,19 @@ class Grammar():
     def text_to_grammar(text):
         divider = '|'
         grammar = Grammar()
+        terminals = set()
+        nonterminals = set()
         for line in [a for a in text.split('\n') if a is not ""]:
             left = line.split('->')[0].strip()
+            nonterminals.add(left)
             right = line.split('->')[1]
             right = [a.strip() for a in right.split(divider)]
             for symbol in right:
                 production = Production(left, symbol)
                 grammar.add_production(production)
+                terminals.add(symbol[0])
+        grammar._terminals = terminals
+        grammar._nonterminals = nonterminals
         return grammar
 
 
