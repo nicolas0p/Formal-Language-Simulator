@@ -551,7 +551,6 @@ class TestFiniteAutomaton(unittest.TestCase):
         automaton.insert_transition(q1, 'b', q2)
         automaton.insert_transition(q1, '&', q2)
 
-        pdb.set_trace()
         automaton.rename_states()
 
         self.assertTrue(automaton.recognize_sentence("ab"))
