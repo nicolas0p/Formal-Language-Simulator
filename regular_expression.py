@@ -1,8 +1,18 @@
 from finite_automaton import FiniteAutomaton
 from finite_automaton import State
 
+"""
+@package Pacote contém Expressão Regular, e nodos da árvore de De Simone
+"""
+
 class RegularExpression:
+    """Classe que representa a Expressão Regular
+    """
+
     def __init__(self, string):
+        """Construtor da Expressão Regular
+        @param string Expressão Regular na forma de uma simples string
+        """
         self._string = string
         self._terminals = {symbol for symbol in string if symbol not in "()|+?.*"}
         self._normalize()
@@ -12,6 +22,10 @@ class RegularExpression:
     # removes outer unnecessary parenthesis
     # (ab*a) => ab*a
     def _normalize(self):
+        """Normaliza a expressão regular ainda como string,
+        adicionando as concatenações que não estão visíveis e retirando
+        parenteses desnecessários.
+        """
         string = self._string
 
         if len(string) == 0:
@@ -49,6 +63,10 @@ class RegularExpression:
     # returns the less significant symbol from the 'outer level' of the string
     # it ignores everything that is inside parenthesis, so it ignores 'inner levels'
     def _get_less_significant(self):
+        """Retorna o símbolo menos significativo do 'nível' mais superior da
+        expressão regular e sua posição
+        @return Símbolo menos significativo e sua posição
+        """
         level = 0
         less_significant = ('&',-1) # symbol | position
         for i in range(0,len(self._string)):
@@ -72,6 +90,9 @@ class RegularExpression:
         return less_significant
 
     def _get_de_simone_tree(self):
+        """Retorna a árvore de De Simone, respectiva a Expressão, já construída
+        @return Nodo "mais alto"(raiz) da árvore de De Simone
+        """
         symbol = self._get_less_significant()
         node = None
 
@@ -100,6 +121,10 @@ class RegularExpression:
 
 
     def to_deterministic_finite_automaton(self):
+        """Retorna o autômato finito resultante da conversão da Expressão, através
+        do  método de De Simone
+        @return Autômato Finito
+        """
         tree = self._get_de_simone_tree()
 
         # creating the initial state of the automaton, as it should have at least one state
@@ -187,16 +212,29 @@ class RegularExpression:
 # "." Concatenation
 
 class DeSimoneNode:
+    """Classe que representa um nodo qualquer da árvore de De Simone
+    """
     def __init__(self, symbol, left=None, right=None):
+        """Construtor de um nodo qualquer da árvore de De Simone
+        @param symbol Símbolo que este nodo representa
+        @param left Nodo filho a esquerda
+        @param right Nodo filho a direita
+        """
         self._symbol = symbol
         self._left = left
         self._right = right
         self._parent = None
 
     def __str__(self):
+        """Representação em string de um Nodo, mostrando seu símbolo e seus filhos
+        @return Representação em string de um Nodo
+        """
         return '{%s[%s]%s}' % (self._left, self._symbol,self._right)
 
     def down(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para baixo' padrão de um nodo qualquer
+        @return Conjunto(Set) com o próprio nodo
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
@@ -205,6 +243,9 @@ class DeSimoneNode:
         return {self}
 
     def _thread_back(self):
+        """Procedimento de percorrimento pela costura padrão de um nodo qualquer
+        @return Conjunto(Set) com os nodos alcançáveis pela costura
+        """
         if self._parent == None:
             return DeSimoneLambda
         elif self._parent._left == self:
@@ -213,15 +254,30 @@ class DeSimoneNode:
             return self._parent._thread_back()
 
 class DeSimoneLambda:
+    """Classe estática que representa o símbolo de 'final de percorrimento' da árvore de De Simone
+    """
     _symbol = 'Lambda'
     def up(seenUp = set(),seenDown = set()):
+        """"Procedimento estático de percorrimento 'indo para cima' do nodo Lambda
+        @return Conjunto(Set) com o próprio nodo
+        """
         return {DeSimoneLambda}
 
 class DeSimoneAlternation(DeSimoneNode):
+    """Classe que representa o símbolo '|'(pipe,'ou',alternation) da árvore de De Simone
+    """
     def __init__(self, left, right):
+        """Construtor de um nodo '|' da árvore de De Simone
+        @param left Nodo filho a esquerda
+        @param right Nodo filho a direita
+        """
         DeSimoneNode.__init__(self,'|',left,right)
 
     def down(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para baixo' do nodo de tipo '|' da árvore de De Simone
+        @return Conjunto(Set) com a união entre os nodos alcançáveis pelo procedimento 'indo para baixo'
+        em seu filho da esquerda e filho da direita
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
@@ -234,6 +290,9 @@ class DeSimoneAlternation(DeSimoneNode):
             return set()
 
     def up(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para cima' do nodo de tipo '|' da árvore de De Simone
+        @return Conjunto(Set) com os nodos alcançáveis a partir da costura deste nodo
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
@@ -246,10 +305,19 @@ class DeSimoneAlternation(DeSimoneNode):
             return set()
 
 class DeSimoneRepetition(DeSimoneNode):
+    """Classe que representa o símbolo '*' da árvore de De Simone
+    """
     def __init__(self, left):
+        """Construtor de um nodo '*' da árvore de De Simone
+        @param left Nodo filho a esquerda
+        """
         DeSimoneNode.__init__(self,'*',left)
 
     def down(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para baixo' do nodo de tipo '*' da árvore de De Simone
+        @return Conjunto(Set) com a união entre os nodos alcançáveis pelo procedimento 'indo para baixo'
+        em seu filho da esquerda e pela sua costura
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
@@ -262,6 +330,10 @@ class DeSimoneRepetition(DeSimoneNode):
             return set()
 
     def up(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para cima' do nodo de tipo '*' da árvore de De Simone
+        @return Conjunto(Set) com a união entre os nodos alcançáveis pelo procedimento 'indo para baixo'
+        em seu filho da esquerda e pela sua costura
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
@@ -274,10 +346,19 @@ class DeSimoneRepetition(DeSimoneNode):
             return set()
 
 class DeSimoneOption(DeSimoneNode):
+    """Classe que representa o símbolo '?' da árvore de De Simone
+    """
     def __init__(self, left):
+        """Construtor de um nodo '?' da árvore de De Simone
+        @param left Nodo filho a esquerda
+        """
         DeSimoneNode.__init__(self,'?',left)
 
     def down(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para baixo' do nodo de tipo '?' da árvore de De Simone
+        @return Conjunto(Set) com a união entre os nodos alcançáveis pelo procedimento 'indo para baixo'
+        em seu filho da esquerda e pela sua costura
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
@@ -290,6 +371,9 @@ class DeSimoneOption(DeSimoneNode):
             return set()
 
     def up(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para cima' do nodo de tipo '?' da árvore de De Simone
+        @return Conjunto(Set) com os nodos alcançáveis pela sua costura
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
@@ -302,10 +386,20 @@ class DeSimoneOption(DeSimoneNode):
             return set()
 
 class DeSimoneConcatenation(DeSimoneNode):
+    """Classe que representa o símbolo '.' da árvore de De Simone
+    """
     def __init__(self,left,right):
+        """Construtor de um nodo '.' da árvore de De Simone
+        @param left Nodo filho a esquerda
+        @param right Nodo filho a direita
+        """
         DeSimoneNode.__init__(self,'.',left,right)
 
     def down(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para baixo' do nodo de tipo '.' da árvore de De Simone
+        @return Conjunto(Set) com os nodos alcançáveis pelo procedimento 'indo para baixo'
+        em seu filho da esquerda
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
@@ -318,6 +412,10 @@ class DeSimoneConcatenation(DeSimoneNode):
             return set()
 
     def up(self,seenUp = None,seenDown = None):
+        """Procedimento de percorrimento 'indo para baixo' do nodo de tipo '.' da árvore de De Simone
+        @return Conjunto(Set) com os nodos alcançáveis pelo procedimento 'indo para baixo'
+        em seu filho da direita
+        """
         if seenUp is None:
             seenUp = set()
         if seenDown is None:
