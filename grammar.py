@@ -96,7 +96,7 @@ class Grammar():
                 #print(production._left, '--', production._right[0], '->', production._right[1])
 
         # determinize the ndfa and return it
-        ndfa.determinize()
+        # ndfa.determinize()
         return ndfa
 
 

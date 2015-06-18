@@ -69,7 +69,7 @@
           <item>
            <widget class="QPlainTextEdit" name="gr_text">
             <property name="placeholderText">
-             <string>S -&gt; aS | b </string>
+             <string>S -&gt; aS | a | bS | b</string>
             </property>
            </widget>
           </item>
