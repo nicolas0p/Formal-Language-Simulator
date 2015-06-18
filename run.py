@@ -2,9 +2,20 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from ui_main import Ui_Form
+from ui_text_highlighter import Ui_TextHighlighter
 
 from regular_expression import RegularExpression
 from grammar import Grammar
+
+class TextHighlighter(QDialog):
+	def __init__(self, fa, parent=None):
+		super(TextHighlighter, self).__init__(parent)
+
+		self._fa = fa
+
+		# Set up the user interface from Designer.
+		self.ui = Ui_TextHighlighter()
+		self.ui.setupUi(self)
 
 class GUI(QDialog):
 	def __init__(self):
@@ -15,25 +26,25 @@ class GUI(QDialog):
 		self.ui.setupUi(self)
 
 		# Connect up the buttons.
-		self.ui.er_fa_a_btn.clicked.connect(self.er_fa_a_btn_clicked) # ER -> FA , SLOT A 				## DONE
-		self.ui.er_fa_b_btn.clicked.connect(self.er_fa_b_btn_clicked) # ER -> FA, SLOT B 				## DONE
+		self.ui.er_fa_a_btn.clicked.connect(self.er_fa_a_btn_clicked) # ER -> FA , SLOT A				 ## DONE
+		self.ui.er_fa_b_btn.clicked.connect(self.er_fa_b_btn_clicked) # ER -> FA, SLOT B				 ## DONE
 
-		self.ui.er_search_btn.clicked.connect(self.default_button_behavior) # SEARCH TEXT WITH ER		#
+		self.ui.er_search_btn.clicked.connect(self.er_search_btn_clicked) # SEARCH TEXT WITH ER		#
 
-		self.ui.er_equals_gr_btn.clicked.connect(self.er_equals_gr_btn_clicked) # ER EQUIVALENCE GR		#
+		self.ui.er_equals_gr_btn.clicked.connect(self.er_equals_gr_btn_clicked) # ER EQUIVALENCE GR		## DONE
 
 		self.ui.gr_fa_a_btn.clicked.connect(self.gr_fa_a_btn_clicked) # GR -> FA, SLOT A				## DONE
 		self.ui.gr_fa_b_btn.clicked.connect(self.gr_fa_b_btn_clicked) # GR -> FA, SLOT B				## DONE
 
-		self.ui.det_fa_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A 			## DONE
-		self.ui.min_fa_a_btn.clicked.connect(self.min_fa_a_btn_clicked) # MINIMIZE SLOT A 				## DONE
-		self.ui.com_fa_a_btn.clicked.connect(self.com_fa_a_btn_clicked) # COMPLEMENT SLOT A 			## DONE
+		self.ui.det_fa_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A			 ## DONE
+		self.ui.min_fa_a_btn.clicked.connect(self.min_fa_a_btn_clicked) # MINIMIZE SLOT A				 ## DONE
+		self.ui.com_fa_a_btn.clicked.connect(self.com_fa_a_btn_clicked) # COMPLEMENT SLOT A			 ## DONE
 
-		self.ui.int_fa_a_btn.clicked.connect(self.int_fa_a_btn_clicked) # INTERSECTION SLOT A           ## DONE
+		self.ui.int_fa_a_btn.clicked.connect(self.int_fa_a_btn_clicked) # INTERSECTION SLOT A		   ## DONE
 
-		self.ui.det_fa_b_btn.clicked.connect(self.det_fa_b_btn_clicked) # DETERMINE SLOT B 				## DONE
-		self.ui.min_fa_b_btn.clicked.connect(self.min_fa_b_btn_clicked) # MINIMIZE SLOT B 				## DONE
-		self.ui.com_fa_b_btn.clicked.connect(self.com_fa_b_btn_clicked) # COMPLEMENT SLOT B 			## DONE
+		self.ui.det_fa_b_btn.clicked.connect(self.det_fa_b_btn_clicked) # DETERMINE SLOT B				 ## DONE
+		self.ui.min_fa_b_btn.clicked.connect(self.min_fa_b_btn_clicked) # MINIMIZE SLOT B				 ## DONE
+		self.ui.com_fa_b_btn.clicked.connect(self.com_fa_b_btn_clicked) # COMPLEMENT SLOT B			 ## DONE
 
 		self.ui.fa_list_a_btn.clicked.connect(self.fa_list_a_btn_clicked) # ITEM ON LIST TO SLOT A		## DONE
 		self.ui.fa_list_b_btn.clicked.connect(self.fa_list_b_btn_clicked) # ITEM ON LIST TO SLOT B		## DONE
@@ -94,6 +105,15 @@ class GUI(QDialog):
 		else:
 			QMessageBox.about(self,"Equivalência entre GR e ER","A Expressão Regular NÃO é equivalente à Gramática Regular")
 
+	def er_search_btn_clicked(self):
+		st = self.ui.er_text.toPlainText()
+		if st == '':
+			st = "(0*(1(01*0)*1)*0*)*"
+
+		fa = RegularExpression(st).to_deterministic_finite_automaton()
+
+		text_highliter = TextHighlighter(fa,self)
+		text_highliter.show()
 
 	def det_fa_a_btn_clicked(self):
 		self.det_fa_btn_clicked(self._fa_a, 'a')
