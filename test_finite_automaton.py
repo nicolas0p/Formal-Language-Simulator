@@ -531,3 +531,14 @@ class TestFiniteAutomaton(unittest.TestCase):
         intersection.minimize()
 
         self.assertFalse(intersection.is_empty())
+
+    def test_minimization_on_the_automaton_language_epsilon_word(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        epsilon_word = FiniteAutomaton({q0, q1}, set(), q0, {q1})
+        epsilon_word.insert_transition(q0, '&', q1)
+
+        pdb.set_trace()
+        epsilon_word.minimize()
+
+        self.assertTrue(epsilon_word.recognize_sentence(""))

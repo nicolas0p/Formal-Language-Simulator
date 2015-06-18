@@ -68,9 +68,7 @@ class FiniteAutomaton():
         for state in self._states:
             has_epsilon = self._transitions[state][self._epsilon] != set()
             for letter in self._alphabet:
-                if len(self._transitions[state][letter]) > 1:
-                    return True
-                if has_epsilon and len(self._transitions[state][letter]) > 0:
+                if len(self._transitions[state][letter]) > 1 or has_epsilon:
                     return True
         return False
 
@@ -313,7 +311,7 @@ class FiniteAutomaton():
         states = set() #will contain the State objects
         multi_states = [] #will contain sets of states, every set will be transformed in a State object
         transitions = {}
-        to_be_added = [{self._initial_state}]
+        to_be_added = [self._epsilon_closure(self._initial_state)]
         final_states = set()
         while to_be_added != []:
             #adds the multi_states that the states reach in new_states
@@ -337,7 +335,8 @@ class FiniteAutomaton():
             transitions[new_state] = {}
             if self._final_states.intersection(multi_state) != set():
                 final_states.add(new_state)
-            for letter in self._alphabet:
+            transitions[new_state][self._epsilon] = set()
+            for letter in self._alphabet - {self._epsilon}:
                 destiny_union = set()
                 for sub_state in multi_state:
                     pluri_destiny = self._transitions[sub_state][letter]
@@ -347,6 +346,8 @@ class FiniteAutomaton():
                 if destiny_union == set():
                     transitions[new_state][letter] = set()
 
+        initial_closure = self._epsilon_closure(self._initial_state)
+        self._initial_state = State(''.join(sorted([x._name for x in initial_closure])))
         self._states = states
         self._final_states = final_states
         self._transitions = transitions
