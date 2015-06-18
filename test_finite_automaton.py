@@ -538,7 +538,21 @@ class TestFiniteAutomaton(unittest.TestCase):
         epsilon_word = FiniteAutomaton({q0, q1}, set(), q0, {q1})
         epsilon_word.insert_transition(q0, '&', q1)
 
-        pdb.set_trace()
         epsilon_word.minimize()
 
         self.assertTrue(epsilon_word.recognize_sentence(""))
+
+    def test_rename_all_states(self):
+        q0 = State("q0")
+        q1 = State("q1")
+        q2 = State("q2")
+        automaton = FiniteAutomaton({q0, q1, q2}, {'a', 'b'}, q0, {q1, q2})
+        automaton.insert_transition(q0, 'a', q1)
+        automaton.insert_transition(q1, 'b', q2)
+        automaton.insert_transition(q1, '&', q2)
+
+        pdb.set_trace()
+        automaton.rename_states()
+
+        self.assertTrue(automaton.recognize_sentence("ab"))
+        self.assertFalse(automaton.recognize_sentence("b"))

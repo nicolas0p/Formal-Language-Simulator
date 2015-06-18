@@ -125,3 +125,13 @@ class TestGrammar(unittest.TestCase):
         self.assertTrue(fa.recognize_sentence("abbabaaababbabab"))
         self.assertFalse(fa.recognize_sentence("babbababcabab"))
 
+    def test_text_to_grammar_2(self):
+        text = "S->aA\nA->b|&"
+        grammar = Grammar.text_to_grammar(text)
+        fa = grammar.to_finite_automaton()
+
+        #pdb.set_trace()
+        fa.rename_states()
+
+        self.assertTrue(fa.recognize_sentence("ab"))
+        self.assertFalse(fa.recognize_sentence("b"))

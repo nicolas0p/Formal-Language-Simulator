@@ -45,6 +45,9 @@ class FiniteAutomaton():
         """
         states = list(self._states)
         for i in range(0, len(self._states)):
+            self._change_state_name(states[i], states[i]._name+str(i))
+        states = list(self._states)
+        for i in range(0, len(self._states)):
             self._change_state_name(states[i], self._generate_name(i))
 
     def _generate_name(self, number):
@@ -498,8 +501,8 @@ class FiniteAutomaton():
         """
         self._states.remove(target)
         new_state = State(new_name)
-        self._states.add(new_state)
         self._transitions[new_state] = self._transitions[target]
+        self._states.add(new_state)
         del self._transitions[target]
         for state in self._states:
             for letter in self._alphabet:
@@ -507,6 +510,7 @@ class FiniteAutomaton():
                 if target in through_transitions:
                     through_transitions.remove(target)
                     through_transitions.add(new_state)
+
         if target in self._final_states:
             self._final_states.remove(target)
             self._final_states.add(new_state)
