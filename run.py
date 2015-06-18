@@ -20,10 +20,10 @@ class GUI(QDialog):
 
 		self.ui.er_search_btn.clicked.connect(self.default_button_behavior) # SEARCH TEXT WITH ER		#
 
-		self.ui.er_equals_gr_btn.clicked.connect(self.default_button_behavior) # ER EQUIVALENCE GR		#
+		self.ui.er_equals_gr_btn.clicked.connect(self.er_equals_gr_btn_clicked) # ER EQUIVALENCE GR		#
 
-		self.ui.gr_fa_a_btn.clicked.connect(self.gr_fa_a_btn_clicked) # GR -> FA, SLOT A				#
-		self.ui.gr_fa_b_btn.clicked.connect(self.gr_fa_b_btn_clicked) # GR -> FA, SLOT B				#
+		self.ui.gr_fa_a_btn.clicked.connect(self.gr_fa_a_btn_clicked) # GR -> FA, SLOT A				## DONE
+		self.ui.gr_fa_b_btn.clicked.connect(self.gr_fa_b_btn_clicked) # GR -> FA, SLOT B				## DONE
 
 		self.ui.det_fa_a_btn.clicked.connect(self.det_fa_a_btn_clicked) # DETERMINIZE SLOT A 			## DONE
 		self.ui.min_fa_a_btn.clicked.connect(self.min_fa_a_btn_clicked) # MINIMIZE SLOT A 				## DONE
@@ -73,8 +73,27 @@ class GUI(QDialog):
 
 		gr = Grammar.text_to_grammar(st)
 		fa = gr.to_finite_automaton()
+
 		self.add_fa_on_list("GR => FA", fa)
 		self.set_fa_on_table(fa, table)
+
+	def er_equals_gr_btn_clicked(self):
+		st = self.ui.gr_text.toPlainText()
+		if st == '':
+			st = "S -> aS | a | bS | b"
+		gr = Grammar.text_to_grammar(st)
+		fa_gr = gr.to_finite_automaton()
+
+		st = self.ui.er_text.toPlainText()
+		if st == '':
+			st = "(0*(1(01*0)*1)*0*)*"
+		fa_er = RegularExpression(st).to_deterministic_finite_automaton()
+
+		if fa_gr.is_equal(fa_er):
+			QMessageBox.about(self,"Equivalência entre GR e ER","A Expressão Regular é equivalente à Gramática Regular")
+		else:
+			QMessageBox.about(self,"Equivalência entre GR e ER","A Expressão Regular NÃO é equivalente à Gramática Regular")
+
 
 	def det_fa_a_btn_clicked(self):
 		self.det_fa_btn_clicked(self._fa_a, 'a')
