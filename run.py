@@ -7,6 +7,22 @@ from ui_text_highlighter import Ui_TextHighlighter
 from regular_expression import RegularExpression
 from grammar import Grammar
 
+class FaHighlighter(QSyntaxHighlighter):
+	def __init__(self, document, fa):
+		QSyntaxHighlighter.__init__(self, document)
+
+		self._fa = fa
+
+	def highlightBlock(self, text):
+		_color = QColor()
+		_color.setRgb(51,188,241)
+		_format = QTextCharFormat()
+		_format.setForeground(_color)
+		_format.setFontWeight(QFont.Bold)
+
+		self.setFormat(1,3,_format)
+
+
 class TextHighlighter(QDialog):
 	def __init__(self, fa, parent=None):
 		super(TextHighlighter, self).__init__(parent)
@@ -16,6 +32,8 @@ class TextHighlighter(QDialog):
 		# Set up the user interface from Designer.
 		self.ui = Ui_TextHighlighter()
 		self.ui.setupUi(self)
+
+		self._highlight = FaHighlighter(self.ui.plainTextEdit.document(),self._fa)
 
 class GUI(QDialog):
 	def __init__(self):

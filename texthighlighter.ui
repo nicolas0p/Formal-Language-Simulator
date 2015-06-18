@@ -31,24 +31,11 @@
      <x>10</x>
      <y>10</y>
      <width>381</width>
-     <height>351</height>
+     <height>381</height>
     </rect>
    </property>
-   <property name="placeholderText">
+   <property name="placeholderText" stdset="0">
     <string>Entre com o texto aqui</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="search_btn">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>370</y>
-     <width>221</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Procurar palavras que se encaixam na ER</string>
    </property>
   </widget>
  </widget>

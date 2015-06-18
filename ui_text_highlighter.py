@@ -15,11 +15,8 @@ class Ui_TextHighlighter(object):
         TextHighlighter.setMinimumSize(QtCore.QSize(400, 400))
         TextHighlighter.setMaximumSize(QtCore.QSize(400, 400))
         self.plainTextEdit = QtWidgets.QPlainTextEdit(TextHighlighter)
-        self.plainTextEdit.setGeometry(QtCore.QRect(10, 10, 381, 351))
+        self.plainTextEdit.setGeometry(QtCore.QRect(10, 10, 381, 381))
         self.plainTextEdit.setObjectName("plainTextEdit")
-        self.search_btn = QtWidgets.QPushButton(TextHighlighter)
-        self.search_btn.setGeometry(QtCore.QRect(170, 370, 221, 23))
-        self.search_btn.setObjectName("search_btn")
 
         self.retranslateUi(TextHighlighter)
         QtCore.QMetaObject.connectSlotsByName(TextHighlighter)
@@ -27,6 +24,5 @@ class Ui_TextHighlighter(object):
     def retranslateUi(self, TextHighlighter):
         _translate = QtCore.QCoreApplication.translate
         TextHighlighter.setWindowTitle(_translate("TextHighlighter", "Procurar no texto"))
-        self.plainTextEdit.setPlaceholderText(_translate("TextHighlighter", "Entre com o texto aqui"))
-        self.search_btn.setText(_translate("TextHighlighter", "Procurar palavras que se encaixam na ER"))
+        self.plainTextEdit.setProperty("placeholderText", _translate("TextHighlighter", "Entre com o texto aqui"))
 
