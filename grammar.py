@@ -19,7 +19,7 @@ class Grammar():
         if production.left() not in self._nonterminals:
             raise Exception("Left side of production not a nonterminal")
         terminal = production.right()[0] in self._terminals
-        nonterminal = True
+        nonterminal = len(production.right()) == 1
         if len(production.right()) == 2:
             nonterminal = production.right()[1] in self._nonterminals
         if not terminal or not nonterminal:
