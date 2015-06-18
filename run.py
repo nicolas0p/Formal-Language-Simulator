@@ -14,13 +14,31 @@ class FaHighlighter(QSyntaxHighlighter):
 		self._fa = fa
 
 	def highlightBlock(self, text):
-		_color = QColor()
-		_color.setRgb(51,188,241)
+		_color_a = QColor()
+		_color_a.setRgb(51,188,241)
+		# _color_b = QColor()
+		# _color_b.setRgb(255,84,10,50)
 		_format = QTextCharFormat()
-		_format.setForeground(_color)
+		_format.setForeground(_color_a)
+		# _format.setBackground(_color_b)
 		_format.setFontWeight(QFont.Bold)
 
-		self.setFormat(1,3,_format)
+		#self.setFormat(1,3,_format)
+
+		i = 0
+		while i < len(text):
+			if text[i] != ' ' and (i == 0 or text[i-1] == ' '):
+				for j in range(len(text)-i):
+					if text[i+j] == ' ' and self._fa.recognize_sentence(text[i:i+j]):
+						self.setFormat(i,j,_format)
+						i += j
+						break
+					elif i+j+1 == len(text) and self._fa.recognize_sentence(text[i:i+j+1]):
+						print(text[i:i+j+1])
+						self.setFormat(i,j+1,_format)
+						i += j+1
+						break
+			i += 1
 
 
 class TextHighlighter(QDialog):
