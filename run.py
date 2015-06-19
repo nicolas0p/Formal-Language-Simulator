@@ -34,7 +34,7 @@ class FaHighlighter(QSyntaxHighlighter):
 						i += j
 						break
 					elif i+j+1 == len(text) and self._fa.recognize_sentence(text[i:i+j+1]):
-						print(text[i:i+j+1])
+						# print(text[i:i+j+1])
 						self.setFormat(i,j+1,_format)
 						i += j+1
 						break
