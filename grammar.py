@@ -2,9 +2,20 @@ import copy
 from finite_automaton import State
 from finite_automaton import FiniteAutomaton
 
+"""
+@package Pacote contém Gramática e Produção
+"""
+
 class Grammar():
+    """Classe que representa uma Gramática
+    """
 
     def __init__(self, terminals = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', '&'}, nonterminals = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'}, initial_symbol = 'S'):
+        """Construtor da Gramática
+        @param terminals Set de com os símbolos terminais da gramática
+        @param non_terminals Set de com os símbolos não-terminais da gramática
+        @param initial_symbol símbolo não-terminal inicial da gramática
+        """
         self._productions = set()
         self._terminals = terminals
         self._nonterminals = nonterminals
@@ -13,9 +24,15 @@ class Grammar():
             raise InitialSymbolNotInNonTerminalsSetException
 
     def productions(self):
+        """Retorna uma cópia das produções da gramática
+        @return Set com as produções da gramática
+        """
         return copy.deepcopy(self._productions)
 
     def add_production(self, production):
+        """Adiciona uma produção à gramática, verificando se é válida
+        @param production Produção a ser adicionada
+        """
         if production.left() not in self._nonterminals:
             raise Exception("Left side of production not a nonterminal")
         terminal = production.right()[0] in self._terminals
@@ -27,9 +44,15 @@ class Grammar():
         self._productions.add(production)
 
     def productions_quantity(self):
+        """Retorna a quantidade de produções nesse gramática
+        @return inteiro com a quantidade de produções envolvidas
+        """
         return len(self._productions)
 
     def to_finite_automaton(self):
+        """Retorna o resultado da conversão da Gramática para um NDFA
+        @return Automato resultante
+        """
         # get initial state as the initial symbol
         initial_state = State(self._initial_symbol)
         # create a 'final' state that will get the productions that go just for a terminal
@@ -101,6 +124,9 @@ class Grammar():
 
 
     def __str__(self):
+        """Retorna uma representação da gramática em forma de string
+        @return string que representa a gramática
+        """
         productions = {}
         # gather productions of the same left part on a list
         for production in self._productions:
@@ -122,6 +148,11 @@ class Grammar():
 
     @staticmethod
     def text_to_grammar(text):
+        """Retorna uma gramática respectiva a uma string no formato
+        S -> aA
+        A -> b | &
+        @return Automato respectivo ao texto
+        """
         divider = '|'
         grammar = Grammar()
         terminals = set()
@@ -141,18 +172,33 @@ class Grammar():
 
 
 class Production():
+    """Classe que representa uma produção
+    """
 
     def __init__(self, left_side, right_side):
+        """Construtor da Produção
+        @param left_side Lado esquerdo da produção
+        @param right_side Lado direito da produção
+        """
         self._left = left_side
         self._right = right_side
 
     def __repr__(self):
+        """Retorna uma representação da produção em forma de string
+        @return string respectivo a produção
+        """
         return str(self._left + "->" + self._right)
 
     def left(self):
+        """Retorna o lado esquerdo da produção
+        @return lado esquerdo da produção
+        """
         return self._left
 
     def right(self):
+        """Retorna o lado direito da produção
+        @return lado direito da produção
+        """
         return self._right
 
 class InitialSymbolNotInNonTerminalsSetException(Exception):
